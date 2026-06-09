@@ -2,6 +2,10 @@
 # !/usr/bin/python
 
 """
+
+作者 丢丢喵推荐 🚓 内容均从互联网收集而来 仅供交流学习使用 版权归原创者所有 如侵犯了您的权益 请通知作者 将及时删除侵权内容
+                    ====================Diudiumiao====================
+
 """
 
 from Crypto.Util.Padding import unpad
@@ -184,7 +188,7 @@ class Spider(Spider):
                     "vod_id": id,
                     "vod_name": name,
                     "vod_pic": pic,
-                    "vod_remarks": remark
+                    "vod_remarks": '▶️' + remark
                         }
                 videos.append(video)
 
@@ -215,7 +219,7 @@ class Spider(Spider):
                     "vod_id": id,
                     "vod_name": name,
                     "vod_pic": pic,
-                    "vod_remarks": remark
+                    "vod_remarks": '▶️' + remark
                         }
                 videos.append(video)
 
@@ -246,29 +250,27 @@ class Spider(Spider):
         name = self.extract_middle_text(code, "s1='", "'", 0)
         Jumps = self.extract_middle_text(code, "s2='", "'", 0)
 
-        content = '剧情：' + data['data']['introduction']
+        content = '集多🎉为您介绍剧情📢' + data['data']['introduction']
 
         area = data['data']['desc_tags'][0]
 
         remarks = data['data']['filing']
 
-        # 修复剧集只有一集的问题 - 检查theaters数据是否存在且不为空
-        if 'theaters' in data['data'] and data['data']['theaters']:
+        if name not in content:
+            bofang = Jumps
+            xianlu = '1'
+        else:
             for sou in data['data']['theaters']:
+
                 id = sou['son_video_url']
+
                 name = sou['num']
+
                 bofang = bofang + str(name) + '$' + id + '#'
 
-            bofang = bofang[:-1] if bofang.endswith('#') else bofang
-            xianlu = '星芽'
-        else:
-            # 如果没有theaters数据，检查是否有单个视频URL
-            if 'video_url' in data['data'] and data['data']['video_url']:
-                bofang = '1$' + data['data']['video_url']
-                xianlu = '星芽'
-            else:
-                bofang = Jumps
-                xianlu = '1'
+            bofang = bofang[:-1]
+
+            xianlu = '专线'
 
         videos.append({
             "vod_id": did,
@@ -319,7 +321,7 @@ class Spider(Spider):
                     "vod_id": id,
                     "vod_name": name,
                     "vod_pic": pic,
-                    "vod_remarks": remark
+                    "vod_remarks": '集多▶️' + remark
                         }
                 videos.append(video)
 
@@ -341,3 +343,6 @@ class Spider(Spider):
         elif params['type'] == "ts":
             return self.proxyTs(params)
         return None
+
+
+
