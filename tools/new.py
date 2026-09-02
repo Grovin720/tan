@@ -3,9 +3,10 @@
 new.py —— 基于 xiao.py 的合并脚本（专用于 G.json 链路）
 
 与 xiao.py 的区别：
-1. 给所有线路 name 加分类表情前缀，并把分隔符统一成 ┃（去除前后空格）
-2. 合并按 key 配对：远程同 key 覆盖模板（保留模板 name），远程独有 key 插到 电影天堂 之后
-3. 铁律：绝不修改 key（重命名只动 name）
+1. 只给"远程(api.json)线路"的 name 加分类表情前缀，并把分隔符统一成 ┃（去除前后空格）
+2. 模板(dianshi.json)站点的 name 原样保留，不做任何重命名（用户已在模板里手动加好表情）
+3. 合并按 key 配对：远程同 key 覆盖模板（保留模板 name），远程独有 key 插到 阿里云盘 之后
+4. 铁律：绝不修改 key（重命名只动远程站点的 name）
 
 用法：python new.py <本地api.json路径> <本地dianshi.json路径>
 示例：python new.py ./output/api.json dianshi.json
@@ -117,7 +118,7 @@ def rename_name(name):
 def merge_by_key(template_sites, remote_sites):
     """按 key 配对合并。
     - 远程同 key 覆盖模板（保留模板 name，key 不变）
-    - 远程独有 key 插到 '电影天堂' 之后
+    - 远程独有 key 插到 '阿里云盘' 之后
     - 模板独有 key 原样保留
     - 远程同 key 重复：取第一个
     """
@@ -188,10 +189,8 @@ if __name__ == "__main__":
         filtered_sites = [s for s in filtered_sites if s.get("key") not in remove_keys]
         print(f"✅ 已按 remove_keys 剔除 {before - len(filtered_sites)} 个远程站点")
 
-    # 5. 模板站重命名（幂等：用户已手动加过表情则跳过）
-    for s in dianshi_sites:
-        if isinstance(s, dict) and "name" in s:
-            s["name"] = rename_name(s.get("name"))
+    # 5. 模板站 name 原样保留，不做任何重命名（用户已在模板里手动加好表情）
+    #    注意：下面合并时仍以模板站为准，远程同 key 覆盖也只替换 live 数据、不动 name
 
     # 6. 合并（按 key）
     dianshi["sites"] = merge_by_key(dianshi_sites, filtered_sites)
