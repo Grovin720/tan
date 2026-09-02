@@ -97,7 +97,7 @@
     {"key": "双星99","name": "🍄┃双星┃动漫","type": 3,"api": "csp_App99","ext": {"host": "http://111.180.139.119:19987/app/bn","LoginPath": "/app/log","appkey": "f66f65db127e48449f073c2c6eb0f993","versionName": "6.4.9","name": "双子星动漫","package": "com.haiwang.liangxia.my.ym","buildNumber": "2001","buildSignature": "A40DA80A59D170CAA950CF15C18C454D47A39B26989D8B640ECD745BA71BF5DC"}},
     {"key": "路漫漫","name": "🍄┃路漫漫┃动漫","type": 3,"api": "https://pan.vma.cc/pan/down.php/ec67b9045d393737f073d2c9365533f0.js","ext": "./js/LMM.js"},
     {"key": "去看吧","name": "🍄┃去看吧┃动漫","type": 3,"api": "https://pan.vma.cc/pan/down.php/ec67b9045d393737f073d2c9365533f0.js","ext": "./js/QKB.js"},
-    {"key": "csp_蘑菇","name": "🍄┃蘑菇┃影视","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./libs/jar/HCCX.jar","ext": "./libs/hccx/蘑菇.json"},
+    {"key": "csp_蘑菇","name": "🥦┃蘑菇┃影视","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./libs/jar/HCCX.jar","ext": "./libs/hccx/蘑菇.json"},
     {"key": "光速资源","name": "💎┃光速┃直连","type": 1,"api": "https://api.guangsuapi.com/api.php/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["大陆剧","港澳剧","综艺","动漫"]},
     {"key": "哔哩合集","name": "🅱️┃哔哩┃合集","type": 3,"api": "csp_Bili","searchable": 1,"quickSearch": 0,"filterable": 0,"changeable": 0,"style": {"type": "rect","ratio": 1.433},"ext": {"n": "哔哩合集","cookie": "http://127.0.0.1:9978/file/TVBox/bili_cookie.txt"}},
     {"key": "哔哩视频","name": "🅱️┃哔哩┃视频","type": 3,"api": "csp_BiliYS","searchable": 1,"quickSearch": 0,"filterable": 0,"changeable": 0,"style": {"type": "rect","ratio": 1.433},"ext": {"cookie": "http://127.0.0.1:9978/file/TVBox/bili_cookie.txt"}},
