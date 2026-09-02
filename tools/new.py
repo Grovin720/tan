@@ -5,7 +5,7 @@ new.py —— 基于 xiao.py 的合并脚本（专用于 G.json 链路）
 与 xiao.py 的区别：
 1. 只给"远程(api.json)线路"的 name 加分类表情前缀，并把分隔符统一成 ┃（去除前后空格）
 2. 模板(dianshi.json)站点的 name 原样保留，不做任何重命名（用户已在模板里手动加好表情）
-3. 合并按 key 配对：远程同 key 覆盖模板（保留模板 name），远程独有 key 插到 阿里云盘 之后
+3. 合并按 key 配对：远程同 key 覆盖模板（保留模板 name）；远程独有 key 按 name 开头表情归类，插到模板里同类第一个站前面
 4. 铁律：绝不修改 key（重命名只动远程站点的 name）
 
 用法：python new.py <本地api.json路径> <本地dianshi.json路径>
@@ -70,6 +70,51 @@ def fetch_json(path_or_url):
     raise ValueError(f"无效路径或 URL：{path_or_url}")
 
 
+def _strip_json_comments(text):
+    """剥离 JSON 里的 // 行注释与 /* */ 块注释（不破坏字符串内的 //）。"""
+    out = []
+    i, n = 0, len(text)
+    in_str = False
+    esc = False
+    while i < n:
+        c = text[i]
+        if in_str:
+            out.append(c)
+            if esc:
+                esc = False
+            elif c == '\\':
+                esc = True
+            elif c == '"':
+                in_str = False
+            i += 1
+            continue
+        if c == '"':
+            in_str = True
+            out.append(c)
+            i += 1
+            continue
+        if c == '/' and i + 1 < n and text[i + 1] == '/':
+            while i < n and text[i] != '\n':
+                i += 1
+            continue
+        if c == '/' and i + 1 < n and text[i + 1] == '*':
+            i += 2
+            while i < n and not (text[i] == '*' and i + 1 < n and text[i + 1] == '/'):
+                i += 1
+            i += 2
+            continue
+        out.append(c)
+        i += 1
+    return ''.join(out)
+
+
+def load_json_file(path):
+    """读取本地 JSON，容忍 // 与 /* */ 注释。"""
+    with open(path, "r", encoding="utf-8") as f:
+        text = f.read()
+    return json.loads(_strip_json_comments(text))
+
+
 def get_md5(filepath):
     md5 = hashlib.md5()
     with open(filepath, "rb") as f:
@@ -115,12 +160,43 @@ def rename_name(name):
     return prefix + new
 
 
+def _is_emoji_char(ch):
+    cp = ord(ch)
+    if 0x1F000 <= cp <= 0x1FAFF:
+        return True
+    if 0x2600 <= cp <= 0x27BF:
+        return True
+    if 0x2B00 <= cp <= 0x2BFF:
+        return True
+    if 0xFE00 <= cp <= 0xFE0F:   # 变体选择符
+        return True
+    if cp == 0x20E3:              # 组合键帽
+        return True
+    return False
+
+
+def emoji_prefix(name):
+    """提取 name 开头连续的 emoji 作为分类标记（如 ✡️ / 🚀 / 🥦 / 🍄 / 🔥）。
+    无 emoji 开头则返回 None。重复表情以第一个为准。"""
+    if not isinstance(name, str) or not name:
+        return None
+    prefix = ""
+    for ch in name:
+        if _is_emoji_char(ch):
+            prefix += ch
+        else:
+            break
+    return prefix or None
+
+
 def merge_by_key(template_sites, remote_sites):
-    """按 key 配对合并。
+    """按 key 配对合并，并按分类表情就近归类。
     - 远程同 key 覆盖模板（保留模板 name，key 不变）
-    - 远程独有 key 插到 '阿里云盘' 之后
+    - 远程独有 key：按 name 开头的表情前缀归类，插到模板里同类“第一个站”前面
     - 模板独有 key 原样保留
     - 远程同 key 重复：取第一个
+    - 模板里没有对应表情类的远程站：追加到末尾
+    铁律：绝不修改 key；模板站 name 原样保留（用户已在模板里手动加好表情）。
     """
     template_by_key = {}
     for s in template_sites:
@@ -132,6 +208,7 @@ def merge_by_key(template_sites, remote_sites):
         if isinstance(s, dict) and "key" in s:
             remote_by_key.setdefault(s["key"], s)
 
+    # 1) 合并模板（远程同 key 覆盖 live 数据，保留模板 name）
     merged = []
     for t in template_sites:
         k = t.get("key") if isinstance(t, dict) else None
@@ -142,18 +219,40 @@ def merge_by_key(template_sites, remote_sites):
         else:
             merged.append(t)
 
-    unique_remote = [r for r in remote_sites if r.get("key") not in template_by_key]
+    # 2) 远程独有站，按表情前缀分组
+    unique_remote = [r for r in remote_sites
+                     if isinstance(r, dict) and r.get("key") not in template_by_key]
+    remote_by_cat = {}   # emoji_prefix -> [sites]
+    ungrouped = []
+    for r in unique_remote:
+        em = emoji_prefix(r.get("name", ""))
+        if em:
+            remote_by_cat.setdefault(em, []).append(r)
+        else:
+            ungrouped.append(r)
 
-    idx = None
+    # 3) 模板里各表情类首次出现的位置（决定插入点）
+    first_pos = {}
     for i, s in enumerate(merged):
-        if isinstance(s, dict) and s.get("key") == "阿里云盘":
-            idx = i
-            break
-    if idx is not None:
-        merged[idx + 1:idx + 1] = unique_remote
-    else:
-        merged.extend(unique_remote)
-    return merged
+        if not isinstance(s, dict):
+            continue
+        em = emoji_prefix(s.get("name", ""))
+        if em and em not in first_pos:
+            first_pos[em] = i
+
+    # 4) 插入：遇到模板里某类的第一个站时，先插入该类远程站（插到它前面）
+    result = []
+    inserted = set()
+    for s in merged:
+        em = emoji_prefix(s.get("name", "")) if isinstance(s, dict) else None
+        if em and em in remote_by_cat and em not in inserted:
+            result.extend(remote_by_cat[em])
+            inserted.add(em)
+        result.append(s)
+
+    # 5) 未被归类的远程站（模板里没有对应表情类）追加末尾
+    result.extend(ungrouped)
+    return result
 
 
 if __name__ == "__main__":
@@ -178,9 +277,8 @@ if __name__ == "__main__":
         if isinstance(site, dict) and "name" in site:
             site["name"] = rename_name(site.get("name"))
 
-    # 3. 读本地模板
-    with open(local_file, "r", encoding="utf-8") as f:
-        dianshi = json.load(f)
+    # 3. 读本地模板（容忍 // 与 /* */ 注释）
+    dianshi = load_json_file(local_file)
     dianshi_sites = dianshi.get("sites", [])
 
     # 4. remove_keys 过滤（保留保护）
