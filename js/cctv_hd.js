@@ -46,12 +46,7 @@ var rule = {
         // input = 视频guid -> 解析真实高清播放地址 (强制 2000kbps 档)
         try {
             let api = 'https://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=' + input;
-            let html = fetch(api, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Referer': 'https://tv.cctv.com/'
-                }
-            });
+            let html = request(api);
             let j = JSON.parse(html);
             let hls = (j.hls_url || '').trim();
             let hd = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
@@ -72,17 +67,12 @@ var rule = {
         // 栏目列表: columnSearch 用 cid(官方EPGC频道ID) 精确过滤, 支持翻页
         let d = [];
         try {
-        let cate = MY_CATE;
-        let page = MY_PAGE || 1;
+            let cate = MY_CATE;
+            let page = MY_PAGE || 1;
             if (cate === '主页' && page > 5) { setResult(d); return; }
             let cid = rule.CID_MAP[cate] || '';
             let url = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&cid=' + cid + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
-            let html = fetch(url, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Referer': 'https://tv.cctv.com/'
-                }
-            });
+            let html = request(url);
             // 剥掉 JSONP 外壳 ko(...)
             html = html.replace(/^\s*ko\s*\(/, '').replace(/\)\s*;?\s*$/, '');
             let j = JSON.parse(html);
@@ -115,10 +105,6 @@ var rule = {
         let website = parts[1] || '';
         let columnId = parts[2] || '';
         let lastGuid = parts[3] || '';
-        let H = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Referer': 'https://tv.cctv.com/'
-        };
         VOD = {
             vod_name: vname,
             vod_pic: '',
@@ -130,21 +116,21 @@ var rule = {
             // 主路径: ctid
             if (lastGuid) {
                 try {
-                    let info = JSON.parse(fetch('https://api.cntv.cn/video/videoinfoByGuid?guid=' + lastGuid + '&serviceId=tvcctv', { headers: H }));
+                    let info = JSON.parse(request('https://api.cntv.cn/video/videoinfoByGuid?guid=' + lastGuid + '&serviceId=tvcctv'));
                     if (info && info.ctid && /^TOPC\d+$/.test(info.ctid)) topc = info.ctid;
                 } catch (e) { }
             }
             // 兜底: 抓栏目页
             if (!topc && website) {
                 try {
-                    let m = fetch(website, { headers: H }).match(/TOPC[0-9]+/);
+                    let m = request(website).match(/TOPC[0-9]+/);
                     if (m) topc = m[0];
                 } catch (e) { }
             }
             if (topc) {
                 for (let p = 1; p <= 2; p++) {
                     let u = 'https://api.cntv.cn/NewVideo/getVideoListByColumn?id=' + topc + '&n=100&sort=desc&p=' + p + '&mode=0&serviceId=tvcctv';
-                    let j = JSON.parse(fetch(u, { headers: H }));
+                    let j = JSON.parse(request(u));
                     let lst = (j.data && j.data.list) || [];
                     lst.forEach(function (v) {
                         if (v.guid) d.push({ title: (v.title || '').trim(), url: v.guid });
