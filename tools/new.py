@@ -16,6 +16,7 @@ import sys
 import re
 import os
 import hashlib
+from datetime import datetime, timezone, timedelta
 
 # jar 路径（用于计算 md5）
 primary_jar_path = "jar/spider.jar"
@@ -293,6 +294,17 @@ if __name__ == "__main__":
     # 6. 合并（按 key）
     dianshi["sites"] = merge_by_key(dianshi_sites, filtered_sites)
     print(f"✅ 合并后站点数: {len(dianshi['sites'])}")
+
+    # 6.5 第一个站点（zy_金鹰资源）加盖更新日期 —— 用户要求的特例，覆盖"模板 name 不动"规则
+    STAMP_KEY = "zy_金鹰资源"
+    stamp_date = (datetime.now(timezone.utc) + timedelta(hours=8)).strftime("%m.%d")
+    for s in dianshi.get("sites", []):
+        if isinstance(s, dict) and s.get("key") == STAMP_KEY:
+            base = s.get("name", "")
+            prefix = (base.split("┃", 1)[0] + "┃") if "┃" in base else base
+            s["name"] = f"{prefix}<{stamp_date}更新>"
+            print(f"📅 已给首站盖章: {s.get('name')}")
+            break
 
     # 7. 设置 spider 为 jar+md5
     jar_path = primary_jar_path if os.path.exists(primary_jar_path) else fallback_jar_path
