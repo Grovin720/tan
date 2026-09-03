@@ -49,6 +49,7 @@ var rule = {
         // 网页播放器播的就是这路, 所以网页清楚、HLS 糊。
         // 对策: 解析 chapters4 的 MP4 直链, 拼成纯媒体 m3u8, 用 data: URI 直接喂播放器 -> 真 2000k 高清。
         try {
+            log('[cctv_hd] lazy 运行: chapters4-MP4 修复版(1f32cc2) guid=' + input);
             let api = 'https://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=' + input;
             let j = JSON.parse(request(api));
             let video = (j && j.video) || {};
@@ -71,6 +72,7 @@ var rule = {
                 }
                 lines.push('#EXT-X-ENDLIST');
                 let m3u8 = lines.join('\n');
+                log('[cctv_hd] ✅ 生成 data:URI, 含 ' + segs.length + ' 段真2000k MP4, 首段=' + segs[0].url.slice(0, 64));
                 result = {
                     parse: 0,
                     url: 'data:application/vnd.apple.mpegurl;base64,' + Buffer.from(m3u8).toString('base64'),
@@ -83,6 +85,7 @@ var rule = {
             }
             if (!result) {
                 // 兜底: 旧 HLS(注意 cntv HLS 实际仅 480x270, 仅保证能播)
+                log('[cctv_hd] ⚠️ chapters4 缺失, 回退 HLS(480x270 糊源) url=' + ((j && j.hls_url) || '').slice(0, 80));
                 let hls = (j && j.hls_url || '').trim();
                 let hdUrl = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
                 result = {
