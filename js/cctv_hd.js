@@ -2,30 +2,29 @@
 // 分类: 主页 + CCTV-1~17 / CCTV-5+ / CCTV-16奥林匹克 (cid 用官方 EPGC 频道ID, 精确过滤, 支持翻页)
 // 栏目选集: 最新一期 guid -> videoinfoByGuid 取 ctid (即 TOPC 编号) -> getVideoListByColumn 按日期倒序
 // 清晰度: hls_url 的 main.m3u8 只含 480x270 一档, 换成 /2000/2000.m3u8 得 2000kbps 超清流
-var CID_MAP = {
-    '主页': '',
-    'CCTV-1综合': 'EPGC1386744804340101',
-    'CCTV-2财经': 'EPGC1386744804340102',
-    'CCTV-3综艺': 'EPGC1386744804340103',
-    'CCTV-4中文国际': 'EPGC1386744804340104',
-    'CCTV-5体育': 'EPGC1386744804340107',
-    'CCTV-5+体育赛事': 'EPGC1468294755566101',
-    'CCTV-6电影': 'EPGC1386744804340108',
-    'CCTV-7国防军事': 'EPGC1386744804340109',
-    'CCTV-8电视剧': 'EPGC1386744804340110',
-    'CCTV-9纪录': 'EPGC1386744804340112',
-    'CCTV-10科教': 'EPGC1386744804340113',
-    'CCTV-11戏曲': 'EPGC1386744804340114',
-    'CCTV-12社会与法': 'EPGC1386744804340115',
-    'CCTV-13新闻': 'EPGC1386744804340116',
-    'CCTV-14少儿': 'EPGC1386744804340117',
-    'CCTV-15音乐': 'EPGC1386744804340118',
-    'CCTV-16奥林匹克': 'EPGC1634630207058998',
-    'CCTV-17农业农村': 'EPGC1563932742616872'
-};
-
 var rule = {
     title: '央视大全',
+    CID_MAP: {
+        '主页': '',
+        'CCTV-1综合': 'EPGC1386744804340101',
+        'CCTV-2财经': 'EPGC1386744804340102',
+        'CCTV-3综艺': 'EPGC1386744804340103',
+        'CCTV-4中文国际': 'EPGC1386744804340104',
+        'CCTV-5体育': 'EPGC1386744804340107',
+        'CCTV-5+体育赛事': 'EPGC1468294755566101',
+        'CCTV-6电影': 'EPGC1386744804340108',
+        'CCTV-7国防军事': 'EPGC1386744804340109',
+        'CCTV-8电视剧': 'EPGC1386744804340110',
+        'CCTV-9纪录': 'EPGC1386744804340112',
+        'CCTV-10科教': 'EPGC1386744804340113',
+        'CCTV-11戏曲': 'EPGC1386744804340114',
+        'CCTV-12社会与法': 'EPGC1386744804340115',
+        'CCTV-13新闻': 'EPGC1386744804340116',
+        'CCTV-14少儿': 'EPGC1386744804340117',
+        'CCTV-15音乐': 'EPGC1386744804340118',
+        'CCTV-16奥林匹克': 'EPGC1634630207058998',
+        'CCTV-17农业农村': 'EPGC1563932742616872'
+    },
     host: 'https://tv.cctv.com',
     homeUrl: '',
     推荐: '',
@@ -73,10 +72,10 @@ var rule = {
         // 栏目列表: columnSearch 用 cid(官方EPGC频道ID) 精确过滤, 支持翻页
         let d = [];
         try {
-            let cate = MY_CATE;
-            let page = MY_PAGE;
+        let cate = MY_CATE;
+        let page = MY_PAGE || 1;
             if (cate === '主页' && page > 5) { setResult(d); return; }
-            let cid = CID_MAP[cate] || '';
+            let cid = rule.CID_MAP[cate] || '';
             let url = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&cid=' + cid + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
             let html = fetch(url, {
                 headers: {
