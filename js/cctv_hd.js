@@ -27,10 +27,14 @@ var CID_MAP = {
 var rule = {
     title: '央视大全',
     host: 'https://tv.cctv.com',
+    homeUrl: '',
+    推荐: '',
+    url: '',
     searchable: 0,
     quickSearch: 0,
     filterable: 0,
     multi: 1,
+    limit: 20,
     timeout: 10000,
     headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

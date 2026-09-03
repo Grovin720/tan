@@ -155,7 +155,7 @@
     {"key": "永乐影视","name": "💎┃永乐┃影视","type": 3,"api": "csp_XBPQ","ext": "./XBPQ/永乐影视.json"},
     {"key": "虎牙直链","name": "🐯┃老虎┃直连","type": 1,"api": "https://www.huyaapi.com/api.php/provide/vod/from/hym3u8","searchable": 1,"quickSearch": 1,"categories": ["内地剧","动作片","科幻片","战争片","喜剧片","爱情片","恐怖片","犯罪片","剧情片","冒险片","记录片","韩剧","香港剧","台湾剧","欧美剧","日剧","马泰剧","体育赛事","综艺","动画片","中国动漫","日本动漫","欧美动漫"]},
     {"key": "cctv","name": "📺┃央视┃大全","type": 3,"api": "csp_CCTV","searchable": 0,"filterable": 0,"jar": "./jar/HCCX.jar","ext": "./lib/hccx/央视大全.json"},
-    {"key": "央视大全","name": "📺┃央视┃大全HD","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/cctv_hd.js","searchable": 0,"quickSearch": 0,"filterable": 1},
+    {"key": "央视大全","name": "📺┃央视┃大全HD","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/cctv_hd.js"},
     {"key": "csp_XYQHiker_VSYY","name": "🎦┃VSY┃影院","type": 3,"api": "csp_XYQHiker","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/XYQH.jar","ext": "./lib/xyq/VS影院.json"},
     {"key": "YGP","name": "🚀┃叨观┃新片","type": 3,"api": "csp_YGP","searchable": 0,"quickSearch": 0,"changeable": 0},
     {"key": "cc_热播之家","name": "🔥┃热播┃之家","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/c.jar","ext": "./lib/c/热播之家.json"},
