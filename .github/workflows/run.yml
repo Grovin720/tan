@@ -38,6 +38,7 @@ jobs:
           python xiao.py ./output/api.json jsm.json
           python copy_xbpq.py ./output/api.json
           \cp -pdr dianshi_with_app_sites.json ../G.json
+          python make_r.py
           \cp -pdr jsm_with_app_sites.json ../jsm.json
           \cp -pdr ./output/spider.jar ../jar/spider.jar
           rm -rf dianshi_with_app_sites.json jsm_with_app_sites.json output xs.json
@@ -49,6 +50,7 @@ jobs:
           name: xiaosa-output
           path: |
             G.json
+            R.json
             jsm.json
             jar/spider.jar
             xiaosa/
