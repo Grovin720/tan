@@ -43,41 +43,37 @@ var rule = {
     class_url: '全部&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
     play_parse: true,
     lazy: $js.toString(() => {
-        // input = 视频guid -> 解析真实高清播放地址 (锁定 2000kbps 超清, 手机端不自动降到 480x270)
-        // 机制: 2000.m3u8 是纯媒体列表(固定码率.ts); 但播放器若拿到 main.m3u8(master, 含多档)
-        //       会自适应选最低 480x270。对策: 把 2000.m3u8 抓回, 相对.ts补成绝对, 用 data: URI
-        //       直接喂播放器 —— 播放器只看到固定码率.ts, 无从切换清晰度。
+        // input = 视频guid -> 解析真实高清播放地址
+        // 关键发现: cntv 的 HLS(main / 2000 等文件夹)实测全系仅 480x270(2000 文件夹虚标, 实际~500kbps),
+        //   不存在高清 HLS。唯一高清源是 getHttpVideoInfo.do 返回的 MP4 分档: chapters4=真·2000k。
+        // 网页播放器播的就是这路, 所以网页清楚、HLS 糊。
+        // 对策: 解析 chapters4 的 MP4 直链, 拼成纯媒体 m3u8, 用 data: URI 直接喂播放器 -> 真 2000k 高清。
         try {
             let api = 'https://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=' + input;
             let j = JSON.parse(request(api));
-            let hls = (j.hls_url || '').trim();
-            let hdUrl = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
-            // 调试开关: true=用 data: URI 锁死清晰度(治手机降级); false=直接用 2000.m3u8 URL(兼容旧盒端)
-            let FORCE_HD_URI = true;
-            let useData = false;
-            let dataUrl = '';
-            if (FORCE_HD_URI) {
-                try {
-                    let pl = request(hdUrl) || '';
-                    // 仅当它是纯媒体列表(无 #EXT-X-STREAM-INF)才转 data URI; 否则退回 URL
-                    if (pl && pl.indexOf('#EXT-X-STREAM-INF') < 0) {
-                        let base = hdUrl.slice(0, hdUrl.lastIndexOf('/') + 1);
-                        let out = pl.split('\n').map(function (s) {
-                            s = (s || '').trim();
-                            if (s && s.charAt(0) !== '#' && !/^https?:\/\//.test(s)) return base + s;
-                            return s;
-                        }).join('\n');
-                        dataUrl = 'data:application/vnd.apple.mpegurl;base64,' + Buffer.from(out).toString('base64');
-                        useData = true;
-                    }
-                } catch (e) { }
+            let video = (j && j.video) || {};
+            // 选最高可用 MP4 分档: chapters4(2000k) > chapters3(1200k) > chapters2(818k) > chapters(418k)
+            let pick = video.chapters4 || video.chapters3 || video.chapters2 || video.chapters || [];
+            let segs = [];
+            if (pick && pick.length) {
+                for (let i = 0; i < pick.length; i++) {
+                    if (pick[i] && pick[i].url) segs.push(pick[i]);
+                }
             }
-            if (useData) {
-                input = { parse: 0, url: dataUrl, jx: 0 };
-            } else {
-                input = {
+            let result = null;
+            if (segs.length) {
+                // 拼纯媒体播放列表(逐段 MP4 直链), data: URI 锁死清晰度, 播放器无从自适应降级
+                let lines = ['#EXTM3U', '#EXT-X-VERSION:3'];
+                for (let i = 0; i < segs.length; i++) {
+                    let d = parseFloat(segs[i].duration) || 0;
+                    lines.push('#EXTINF:' + d.toFixed(3) + ',');
+                    lines.push(segs[i].url);
+                }
+                lines.push('#EXT-X-ENDLIST');
+                let m3u8 = lines.join('\n');
+                result = {
                     parse: 0,
-                    url: hdUrl || hls,
+                    url: 'data:application/vnd.apple.mpegurl;base64,' + Buffer.from(m3u8).toString('base64'),
                     jx: 0,
                     header: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -85,6 +81,21 @@ var rule = {
                     }
                 };
             }
+            if (!result) {
+                // 兜底: 旧 HLS(注意 cntv HLS 实际仅 480x270, 仅保证能播)
+                let hls = (j && j.hls_url || '').trim();
+                let hdUrl = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
+                result = {
+                    parse: 0,
+                    url: hdUrl || hls || input,
+                    jx: 0,
+                    header: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Referer': 'https://tv.cctv.com/'
+                    }
+                };
+            }
+            input = result;
         } catch (e) {
             input = { parse: 0, url: input, jx: 0 };
         }
