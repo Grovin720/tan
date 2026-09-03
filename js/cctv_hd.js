@@ -67,51 +67,63 @@ var rule = {
         // 栏目列表: columnSearch 用 cid(官方EPGC频道ID) 精确过滤, 支持翻页
         let d = [];
         let html = '';
+        let DEBUG = function (msg) { log('[央视大全][一级] ' + msg); };
+        // 健壮提取: 兼容 纯JSON / ko(...) / /*注释*/ko(...) / 末尾换行或分号
+        function parseCntv(raw) {
+            let s = (raw || '').trim();
+            let m = s.match(/\{[\s\S]*\}/);
+            if (!m) return [];
+            try {
+                let j = JSON.parse(m[0]);
+                return (j.response && j.response.docs) || [];
+            } catch (e) {
+                DEBUG('parseCntv 解析失败: ' + e.message);
+                return [];
+            }
+        }
         try {
             let cate = (MY_CATE || '').trim();
             let page = MY_PAGE || 1;
-            if (cate === '主页' && page > 5) { setResult(d); return; }
             let cid = rule.CID_MAP[cate] || '';
             // 主路径: 用官方频道 cid 精确过滤
             let url = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&cid=' + cid + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
             html = request(url) || '';
-            log('[央视大全][一级] cate=' + cate + ' cid=' + cid + ' page=' + page + ' 响应长度=' + html.length);
-            // 剥 JSONP 外壳 ko(...) 或纯 JSON
-            let s = html.trim();
-            if (s.startsWith('ko(')) s = s.slice(3);
-            if (s.endsWith(');')) s = s.slice(0, -2);
-            else if (s.endsWith(')')) s = s.slice(0, -1);
-            let j = JSON.parse(s);
-            let docs = (j.response && j.response.docs) || [];
-            // 兜底: cid 无效或为空(如 MY_CATE 没匹配上)时, 退回用频道名搜索
-            if (!docs.length && cate && cate !== '主页') {
-                let u2 = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&channel_name=' + encodeURIComponent(cate) + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
-                let h2 = request(u2) || '';
-                log('[央视大全][一级] 兜底频道名搜索 响应长度=' + h2.length);
-                let s2 = h2.trim();
-                if (s2.startsWith('ko(')) s2 = s2.slice(3);
-                if (s2.endsWith(');')) s2 = s2.slice(0, -2);
-                else if (s2.endsWith(')')) s2 = s2.slice(0, -1);
-                let j2 = JSON.parse(s2);
-                docs = (j2.response && j2.response.docs) || [];
-            }
-            let seen = {};
-            docs.forEach(function (it) {
-                let key = it.column_id || it.column_name;
-                if (seen[key]) return;
-                seen[key] = 1;
-                d.push({
-                    title: it.column_name || '',
-                    img: it.column_logo || '',
-                    desc: (it.channel_name || '') + (it.column_playdate ? ' | ' + it.column_playdate : ''),
-                    url: (it.column_name || '') + '||' + (it.column_website || '') + '||' + (it.column_id || '') + '||' + ((it.lastVIDE && it.lastVIDE.videoSharedCode) || '')
+            DEBUG('cate=' + cate + ' cid=' + cid + ' page=' + page + ' 响应长度=' + html.length);
+            if (!html.length) {
+                // 屏幕上直接显示"取不到响应"——多半是盒子网络连不上 api.cntv.cn
+                setResult([{ title: '⚠️ 调试: request 无响应(长度0) 可能盒子连不上 api.cntv.cn', desc: 'url=' + url, url: 'debug' }]);
+            } else {
+                let docs = parseCntv(html);
+                // 兜底: cid 无效或为空(如 MY_CATE 没匹配上)时, 退回用频道名搜索
+                if (!docs.length && cate && cate !== '主页') {
+                    let u2 = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&channel_name=' + encodeURIComponent(cate) + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
+                    let h2 = request(u2) || '';
+                    DEBUG('兜底频道名搜索 响应长度=' + h2.length);
+                    docs = parseCntv(h2);
+                }
+                let seen = {};
+                docs.forEach(function (it) {
+                    let key = it.column_id || it.column_name;
+                    if (seen[key]) return;
+                    seen[key] = 1;
+                    d.push({
+                        title: it.column_name || '',
+                        img: it.column_logo || '',
+                        desc: (it.channel_name || '') + (it.column_playdate ? ' | ' + it.column_playdate : ''),
+                        url: (it.column_name || '') + '||' + (it.column_website || '') + '||' + (it.column_id || '') + '||' + ((it.lastVIDE && it.lastVIDE.videoSharedCode) || '')
+                    });
                 });
-            });
-            if (!d.length) log('[央视大全][一级] 空数据, raw前600字=' + html.slice(0, 600));
+                if (!d.length) {
+                    DEBUG('空数据, raw前600字=' + html.slice(0, 600));
+                    setResult([{ title: '⚠️ 调试: 解析后0条 | raw前300=' + html.slice(0, 300), desc: 'cate=' + cate, url: 'debug' }]);
+                }
+            }
         } catch (e) {
-            log('[央视大全][一级] 出错: ' + e.message + ' | raw前600字=' + html.slice(0, 600));
+            DEBUG('出错: ' + e.message + ' | raw前600字=' + html.slice(0, 600));
+            setResult([{ title: '⚠️ 调试: ' + e.message, desc: 'raw前200=' + html.slice(0, 200), url: 'debug' }]);
         }
-        setResult(d);
+        // 正常有数据时交卷(调试分支已自行 setResult, 此处仅在 d 非空时补交)
+        if (d.length) setResult(d);
     }),
     二级: $js.toString(() => {
         // input = 栏目名||栏目页||column_id||最新一期guid
