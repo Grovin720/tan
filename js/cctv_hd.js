@@ -5,7 +5,7 @@
 var rule = {
     title: '央视大全',
     CID_MAP: {
-        '主页': '',
+        '全部': '',
         'CCTV-1综合': 'EPGC1386744804340101',
         'CCTV-2财经': 'EPGC1386744804340102',
         'CCTV-3综艺': 'EPGC1386744804340103',
@@ -39,8 +39,8 @@ var rule = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Referer': 'https://tv.cctv.com/'
     },
-    class_name: '主页&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
-    class_url: '主页&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
+    class_name: '全部&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
+    class_url: '全部&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
     play_parse: true,
     lazy: $js.toString(() => {
         // input = 视频guid -> 解析真实高清播放地址 (强制 2000kbps 档)
@@ -95,7 +95,7 @@ var rule = {
             } else {
                 let docs = parseCntv(html);
                 // 兜底: cid 无效或为空(如 MY_CATE 没匹配上)时, 退回用频道名搜索
-                if (!docs.length && cate && cate !== '主页') {
+                if (!docs.length && cate && cate !== '全部') {
                     let u2 = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&channel_name=' + encodeURIComponent(cate) + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
                     let h2 = request(u2) || '';
                     DEBUG('兜底频道名搜索 响应长度=' + h2.length);
@@ -147,8 +147,10 @@ var rule = {
             // 主路径: ctid
             if (lastGuid) {
                 try {
-                    let info = JSON.parse(request('https://api.cntv.cn/video/videoinfoByGuid?guid=' + lastGuid + '&serviceId=tvcctv'));
-                    if (info && info.ctid && /^TOPC\d+$/.test(info.ctid)) topc = info.ctid;
+                let info = JSON.parse(request('https://api.cntv.cn/video/videoinfoByGuid?guid=' + lastGuid + '&serviceId=tvcctv'));
+                if (info && info.ctid && /^TOPC\d+$/.test(info.ctid)) topc = info.ctid;
+                // 单集内容简介: videoinfoByGuid 返回 brief 字段(本期节目主要内容)
+                if (info && info.brief && info.brief.trim()) VOD.vod_content = info.brief.trim();
                 } catch (e) { }
             }
             // 兜底: 抓栏目页
@@ -159,18 +161,21 @@ var rule = {
                 } catch (e) { }
             }
             if (topc) {
-                for (let p = 1; p <= 2; p++) {
+                for (let p = 1; p <= 8; p++) {
                     let u = 'https://api.cntv.cn/NewVideo/getVideoListByColumn?id=' + topc + '&n=100&sort=desc&p=' + p + '&mode=0&serviceId=tvcctv';
                     let j = JSON.parse(request(u));
                     let lst = (j.data && j.data.list) || [];
                     lst.forEach(function (v) {
-                        if (v.guid) d.push({ title: (v.title || '').trim(), url: v.guid });
+                        if (v.guid) {
+                            let cleanTitle = (v.title || '').trim().replace(/^《[^》]*》\s*/, '');
+                            d.push({ title: cleanTitle, url: v.guid });
+                        }
                     });
                     if (lst.length < 100) break;
                 }
             }
             if (d.length === 0 && lastGuid) {
-                d.push({ title: vname + ' 最新一期', url: lastGuid });
+                d.push({ title: '最新一期', url: lastGuid });
             }
             let seen = {};
             d = d.filter(function (it) {
@@ -181,7 +186,7 @@ var rule = {
             VOD.vod_play_url = d.map(function (it) { return it.title + '$' + it.url; }).join('#');
         } catch (e) {
             log('cctv_hd 二级出错: ' + e.message);
-            VOD.vod_play_url = lastGuid ? (vname + ' 最新一期$' + lastGuid) : '加载失败$error';
+            VOD.vod_play_url = lastGuid ? ('最新一期$' + lastGuid) : '加载失败$error';
         }
         setResult(d);
     })
