@@ -43,22 +43,48 @@ var rule = {
     class_url: '全部&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
     play_parse: true,
     lazy: $js.toString(() => {
-        // input = 视频guid -> 解析真实高清播放地址 (强制 2000kbps 档)
+        // input = 视频guid -> 解析真实高清播放地址 (锁定 2000kbps 超清, 手机端不自动降到 480x270)
+        // 机制: 2000.m3u8 是纯媒体列表(固定码率.ts); 但播放器若拿到 main.m3u8(master, 含多档)
+        //       会自适应选最低 480x270。对策: 把 2000.m3u8 抓回, 相对.ts补成绝对, 用 data: URI
+        //       直接喂播放器 —— 播放器只看到固定码率.ts, 无从切换清晰度。
         try {
             let api = 'https://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=' + input;
-            let html = request(api);
-            let j = JSON.parse(html);
+            let j = JSON.parse(request(api));
             let hls = (j.hls_url || '').trim();
-            let hd = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
-            input = {
-                parse: 0,
-                url: hd || hls,
-                jx: 0,
-                header: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Referer': 'https://tv.cctv.com/'
-                }
-            };
+            let hdUrl = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
+            // 调试开关: true=用 data: URI 锁死清晰度(治手机降级); false=直接用 2000.m3u8 URL(兼容旧盒端)
+            let FORCE_HD_URI = true;
+            let useData = false;
+            let dataUrl = '';
+            if (FORCE_HD_URI) {
+                try {
+                    let pl = request(hdUrl) || '';
+                    // 仅当它是纯媒体列表(无 #EXT-X-STREAM-INF)才转 data URI; 否则退回 URL
+                    if (pl && pl.indexOf('#EXT-X-STREAM-INF') < 0) {
+                        let base = hdUrl.slice(0, hdUrl.lastIndexOf('/') + 1);
+                        let out = pl.split('\n').map(function (s) {
+                            s = (s || '').trim();
+                            if (s && s.charAt(0) !== '#' && !/^https?:\/\//.test(s)) return base + s;
+                            return s;
+                        }).join('\n');
+                        dataUrl = 'data:application/vnd.apple.mpegurl;base64,' + Buffer.from(out).toString('base64');
+                        useData = true;
+                    }
+                } catch (e) { }
+            }
+            if (useData) {
+                input = { parse: 0, url: dataUrl, jx: 0 };
+            } else {
+                input = {
+                    parse: 0,
+                    url: hdUrl || hls,
+                    jx: 0,
+                    header: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Referer': 'https://tv.cctv.com/'
+                    }
+                };
+            }
         } catch (e) {
             input = { parse: 0, url: input, jx: 0 };
         }
