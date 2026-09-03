@@ -66,17 +66,35 @@ var rule = {
     一级: $js.toString(() => {
         // 栏目列表: columnSearch 用 cid(官方EPGC频道ID) 精确过滤, 支持翻页
         let d = [];
+        let html = '';
         try {
-            let cate = MY_CATE;
+            let cate = (MY_CATE || '').trim();
             let page = MY_PAGE || 1;
             if (cate === '主页' && page > 5) { setResult(d); return; }
             let cid = rule.CID_MAP[cate] || '';
+            // 主路径: 用官方频道 cid 精确过滤
             let url = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&cid=' + cid + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
-            let html = request(url);
-            // 剥掉 JSONP 外壳 ko(...)
-            html = html.replace(/^\s*ko\s*\(/, '').replace(/\)\s*;?\s*$/, '');
-            let j = JSON.parse(html);
+            html = request(url) || '';
+            log('[央视大全][一级] cate=' + cate + ' cid=' + cid + ' page=' + page + ' 响应长度=' + html.length);
+            // 剥 JSONP 外壳 ko(...) 或纯 JSON
+            let s = html.trim();
+            if (s.startsWith('ko(')) s = s.slice(3);
+            if (s.endsWith(');')) s = s.slice(0, -2);
+            else if (s.endsWith(')')) s = s.slice(0, -1);
+            let j = JSON.parse(s);
             let docs = (j.response && j.response.docs) || [];
+            // 兜底: cid 无效或为空(如 MY_CATE 没匹配上)时, 退回用频道名搜索
+            if (!docs.length && cate && cate !== '主页') {
+                let u2 = 'https://api.cntv.cn/lanmu/columnSearch?&fl=&fc=&channel_name=' + encodeURIComponent(cate) + '&p=' + page + '&n=20&serviceId=tvcctv&t=json&cb=ko';
+                let h2 = request(u2) || '';
+                log('[央视大全][一级] 兜底频道名搜索 响应长度=' + h2.length);
+                let s2 = h2.trim();
+                if (s2.startsWith('ko(')) s2 = s2.slice(3);
+                if (s2.endsWith(');')) s2 = s2.slice(0, -2);
+                else if (s2.endsWith(')')) s2 = s2.slice(0, -1);
+                let j2 = JSON.parse(s2);
+                docs = (j2.response && j2.response.docs) || [];
+            }
             let seen = {};
             docs.forEach(function (it) {
                 let key = it.column_id || it.column_name;
@@ -89,8 +107,9 @@ var rule = {
                     url: (it.column_name || '') + '||' + (it.column_website || '') + '||' + (it.column_id || '') + '||' + ((it.lastVIDE && it.lastVIDE.videoSharedCode) || '')
                 });
             });
+            if (!d.length) log('[央视大全][一级] 空数据, raw前600字=' + html.slice(0, 600));
         } catch (e) {
-            log('cctv_hd 一级出错: ' + e.message);
+            log('[央视大全][一级] 出错: ' + e.message + ' | raw前600字=' + html.slice(0, 600));
         }
         setResult(d);
     }),
