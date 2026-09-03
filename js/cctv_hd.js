@@ -64,8 +64,11 @@ var rule = {
             let result = null;
             if (segs.length) {
                 // 拼纯媒体播放列表(逐段 MP4 直链), data: URI 锁死清晰度, 播放器无从自适应降级
-                let lines = ['#EXTM3U', '#EXT-X-VERSION:3'];
+                // 关键: 每段 MP4 的 PTS 都从 0 开始, 必须在每段(除第一段)前加 #EXT-X-DISCONTINUITY,
+                //   否则 exoplayer/影视仓的 ijkplayer 拼接时时间轴错乱 -> 黑屏。PotPlayer 宽松故能放。
+                let lines = ['#EXTM3U', '#EXT-X-VERSION:3', '#EXT-X-MEDIA-SEQUENCE:0'];
                 for (let i = 0; i < segs.length; i++) {
+                    if (i > 0) lines.push('#EXT-X-DISCONTINUITY');
                     let d = parseFloat(segs[i].duration) || 0;
                     lines.push('#EXTINF:' + d.toFixed(3) + ',');
                     lines.push(segs[i].url);
