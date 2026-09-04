@@ -43,23 +43,59 @@ var rule = {
     class_url: '全部&CCTV-1综合&CCTV-2财经&CCTV-3综艺&CCTV-4中文国际&CCTV-5体育&CCTV-5+体育赛事&CCTV-6电影&CCTV-7国防军事&CCTV-8电视剧&CCTV-9纪录&CCTV-10科教&CCTV-11戏曲&CCTV-12社会与法&CCTV-13新闻&CCTV-14少儿&CCTV-15音乐&CCTV-16奥林匹克&CCTV-17农业农村',
     play_parse: true,
     lazy: $js.toString(() => {
-        // input = 视频guid -> 返回高清 m3u8 的真实 HTTP URL(由本地 cctv_m3u8_server.py 提供)
-        // 根因: 影视仓默认 exoplayer/ijkplayer 对 data:URI 的 HLS 列表黑屏; cntv 又无高清 HLS(全系480x270)。
-        //       -> 必须有本地服务把"逐段真2000k MP4"拼成 m3u8 以真实URL供给播放器, 才能出高清。
-        // 部署: 在电脑跑 cctv_m3u8_server.py, 下面 PROXY 改成该电脑局域网IP(同机用127.0.0.1)。
+        // input = 视频guid -> 解析真实高清播放地址
+        // 关键发现: cntv 的 HLS(main / 2000 等文件夹)实测全系仅 480x270(2000 文件夹虚标, 实际~500kbps),
+        //   不存在高清 HLS。唯一高清源是 getHttpVideoInfo.do 返回的 MP4 分档: chapters4=真·2000k。
+        // 网页播放器播的就是这路, 所以网页清楚、HLS 糊。
+        // 对策: 解析 chapters4 的 MP4 直链, 拼成纯媒体 m3u8, 用 data: URI 直接喂播放器 -> 真 2000k 高清。
         try {
-            // ↓↓↓ 运行 cctv_m3u8_server.py 的电脑局域网IP; 影视仓在手机/盒子时填电脑IP, 同机填127.0.0.1 ↓↓↓
-            // 当前电脑 WLAN IP = 192.168.63.141 (手机也连同一WiFi时直接用); 若改手机热点让电脑连, 连后重跑 ipconfig 看 WLAN 的 IPv4 改这里
-            let PROXY = 'http://192.168.63.141:8099';
-            input = {
-                parse: 0,
-                url: PROXY + '/cctv.m3u8?guid=' + input,
-                jx: 0,
-                header: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Referer': 'https://tv.cctv.com/'
+            let api = 'https://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=' + input;
+            let j = JSON.parse(request(api));
+            let video = (j && j.video) || {};
+            // 选最高可用 MP4 分档: chapters4(2000k) > chapters3(1200k) > chapters2(818k) > chapters(418k)
+            let pick = video.chapters4 || video.chapters3 || video.chapters2 || video.chapters || [];
+            let segs = [];
+            if (pick && pick.length) {
+                for (let i = 0; i < pick.length; i++) {
+                    if (pick[i] && pick[i].url) segs.push(pick[i]);
                 }
-            };
+            }
+            let result = null;
+            if (segs.length) {
+                // 拼纯媒体播放列表(逐段 MP4 直链), data: URI 锁死清晰度, 播放器无从自适应降级
+                let lines = ['#EXTM3U', '#EXT-X-VERSION:3'];
+                for (let i = 0; i < segs.length; i++) {
+                    let d = parseFloat(segs[i].duration) || 0;
+                    lines.push('#EXTINF:' + d.toFixed(3) + ',');
+                    lines.push(segs[i].url);
+                }
+                lines.push('#EXT-X-ENDLIST');
+                let m3u8 = lines.join('\n');
+                result = {
+                    parse: 0,
+                    url: 'data:application/vnd.apple.mpegurl;base64,' + Buffer.from(m3u8).toString('base64'),
+                    jx: 0,
+                    header: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Referer': 'https://tv.cctv.com/'
+                    }
+                };
+            }
+            if (!result) {
+                // 兜底: 旧 HLS(注意 cntv HLS 实际仅 480x270, 仅保证能播)
+                let hls = (j && j.hls_url || '').trim();
+                let hdUrl = hls.replace('/main/', '/2000/').replace('main.m3u8', '2000.m3u8');
+                result = {
+                    parse: 0,
+                    url: hdUrl || hls || input,
+                    jx: 0,
+                    header: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Referer': 'https://tv.cctv.com/'
+                    }
+                };
+            }
+            input = result;
         } catch (e) {
             input = { parse: 0, url: input, jx: 0 };
         }

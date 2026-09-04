@@ -122,7 +122,6 @@
     {"key": "番薯动漫","name": "🍄┃番薯┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://new.app.bytegooty.com","dataKey": "N4yj7l7xKxHF4*gz","dataIv": "N4yj7l7xKxHF4*gz"}},
     {"key": "曼波动漫","name": "🍄┃曼波┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://app.omofun1.top","dataKey": "66dc309cbeeca454","dataIv": "66dc309cbeeca454"}},
     {"key": "咕咕动漫","name": "🍄┃咕咕┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://www.gugu3.com","dataKey": "nKfZ8KX6JTNWRzTD","dataIv": "nKfZ8KX6JTNWRzTD"}},
-    {"key": "csp_蘑菇","name": "🥦┃蘑菇┃影视","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./libs/jar/HCCX.jar","ext": "./libs/hccx/蘑菇.json"},
     {"key": "csp_蘑菇","name": "🥦┃蘑菇┃影视","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/HCCX.jar","ext": "./lib/hccx/蘑菇.json"},
     {"key": "世界影视","name": "🥦┃世界┃影视","type": 3,"api": "csp_HkybSpider","searchable": 1,"quickSearch": 1,"filterable": 1},
     {"key": "壹壹影视","name": "🥦┃壹壹┃影视","type": 3,"api": "csp_YiYs","searchable": 1,"quickSearch": 1,"filterable": 1},
@@ -161,10 +160,8 @@
     {"key": "面包影视","name": "💎┃面包┃影视","type": 3,"api": "csp_XBPQ","ext": "./XBPQ/面包影视.json"},
     {"key": "永乐影视","name": "💎┃永乐┃影视","type": 3,"api": "csp_XBPQ","ext": "./XBPQ/永乐影视.json"},
     {"key": "虎牙直链","name": "🐯┃老虎┃直连","type": 1,"api": "https://www.huyaapi.com/api.php/provide/vod/from/hym3u8","searchable": 1,"quickSearch": 1,"categories": ["内地剧","动作片","科幻片","战争片","喜剧片","爱情片","恐怖片","犯罪片","剧情片","冒险片","记录片","韩剧","香港剧","台湾剧","欧美剧","日剧","马泰剧","体育赛事","综艺","动画片","中国动漫","日本动漫","欧美动漫"]},
-    {"key": "cctv","name": "📺┃央视┃大全","type": 3,"api": "csp_CCTV","searchable": 0,"filterable": 0,"jar": "./jar/HCCX.jar","ext": "./lib/hccx/央视大全.json"},
-    {"key": "央视大全","name": "📺┃央视┃大全HD","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/cctv_hd.js"},
+    {"key": "央视大全","name": "📺┃央视┃大全","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/cctv_hd.js"},
     {"key": "csp_XYQHiker_VSYY","name": "🎦┃VSY┃影院","type": 3,"api": "csp_XYQHiker","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/XYQH.jar","ext": "./lib/xyq/VS影院.json"},
-    {"key": "YGP","name": "🚀┃叨观┃新片","type": 3,"api": "csp_YGP","searchable": 0,"quickSearch": 0,"changeable": 0},
     {"key": "cc_热播之家","name": "🔥┃热播┃之家","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/c.jar","ext": "./lib/c/热播之家.json"},
     {"key": "cc_黑狐","name": "🦊┃黑狐┃影视","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/c.jar","ext": "./lib/c/黑狐.json"},
     {"key": "csp_达龟","name": "🐢┃达龟┃影院","type": 3,"api": "csp_XBPQ","searchable": 1,"quickSearch": 1,"filterable": 1,"jar": "./jar/HCCX.jar","ext": "./lib/hccx/达达龟影视.json"},
@@ -274,6 +271,7 @@
     {"key": "聚合","name": "🔎┃聚合┃搜索","type": 3,"api": "csp_JuheSo","searchable": 1,"quickSearch": 0,"filterable": 0,"timeout": 60},
     {"key": "急救教学","name": "🔥┃急救┃教学","type": 3,"api": "csp_FirstAid","searchable": 0,"quickSearch": 0,"changeable": 0,"style": {"type": "rect","ratio": 3.8},"gridview": "0-0-4.1"},
     {"key": "养生堂","name": "🔥┃养生┃知识","type": 3,"api": "csp_YST","searchable": 0,"quickSearch": 0,"changeable": 0,"style": {"type": "rect","ratio": 1.597}},
+    {"key": "cctv","name": "📺┃央视┃大全","type": 3,"api": "csp_CCTV","searchable": 0,"filterable": 0,"jar": "./jar/HCCX.jar","ext": "./lib/hccx/央视大全.json"},
     {"key": "drpy_js_Alist","name": "🔥┃网盘 ┃ Alist[js]","type": 3,"api": "./lib/js/alist.min.js","ext": "./lib/js/alist.json"}
   ],
   "parses": [
