@@ -98,6 +98,8 @@ jobs:
     steps:
       - name: Checkout the branch
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Download xiaosa artifacts
         uses: actions/download-artifact@v8
@@ -122,3 +124,13 @@ jobs:
           else
             echo "没有文件更新，不执行 git push"
           fi
+
+      - name: Mirror to Gitee
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+          GITEE_USER: ${{ secrets.GITEE_USERNAME }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          git remote remove gitee 2>/dev/null || true
+          git remote add gitee https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/${GITEE_USER}/${REPO_NAME}.git
+          git push -f gitee HEAD
