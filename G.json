@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/spider.jar;md5;c0de87bb3f38b2ffc17ca643d2ce5eaf",
+  "spider": "./jar/spider.jar;md5;176deff1724a6fdc9bd97f8e6e04b562",
   "lives": [
     {"name": "TV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.json","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"},
     {"name": "AutoTV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.m3u","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"}
@@ -7,7 +7,7 @@
   "wallpaper": "https://qist.cc/api/api.php",
   "warningText": "Grovin提醒你：资源来自网络，所有内容仅供学习使用，请勿用于违法及商业用途，请勿付费购买。",
   "sites": [
-    {"key": "zy_金鹰资源","name": "🔰┃<09.09更新>","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
+    {"key": "zy_金鹰资源","name": "🔰┃<09.10更新>","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
     {"key": "py_xlys","name": "🌺┃雪落┃影视","type": 3,"api": "./py/xlys.py","jar": "./jar/yt.jar","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://v.xl.in.ua","pageFmt": ""}},
     {"key": "热播","name": "🏆┃热播┃App","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
     {"key": "剧评","name": "🏆┃剧评┃App","type": 3,"api": "csp_Jpys","playerType": 1,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg402i7942463j9j9jh84l8798l8gli652828g332i"},
@@ -62,7 +62,7 @@
     {"key": "苹果","name": "✡️┃苹果┃APP","type": 3,"api": "csp_AppDrama","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"appName": "小苹果","publicKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCduNEnfxGaLuQRk5ABzXHhPV43zi00sCHjLo8BYc+Wi6xXm2b4v0i28Sq4WlNCKhseft9fz8kO/qLr6/022o1RcuOU7e4GFL3U9WnNODwRBYSYWd+K8nqpI/tAUDmZEBGRWqjrc7x6aMl3A+xpnWkLbPCLsuhbuuUE3tv09oeOpwIDAQAB","dataKey": "S0VNDTJHOFHHCNMRAW5IV2TOS2PBPQ==","dataIv": "OC1A06E197EF10CF3F6058CA7A803B5E","pkg": "com.juechufsh.android.xpg1","host": "","site": "https://xpgandroid03-1372779881.cos.ap-beijing.myqcloud.com/app_xpg_android.txt","version": "1.0.0.3","decrypt": "0"}},
     {"key": "蓝鹰","name": "✡️┃蓝鹰┃APP","type": 3,"api": "csp_AppQi","searchable": 1,"changeable": 1,"ext": {"url": "http://103.217.190.91:5566","dataKey": "hagYExMdMkeWfemK","dataIv": "hagYExMdMkeWfemK","init": "initV122","ua": "okhttp/3.10.0"}},
     {"key": "爱影","name": "✡️┃爱影┃APP","type": 3,"api": "csp_AppQi","searchable": 1,"changeable": 1,"ext": {"site": "https://aysappto.oss-cn-chengdu.aliyuncs.com/q26.txt","dataKey": "0UKM8jkasM8tdzgW","dataIv": "0UKM8jkasM8tdzgW","init": "initV122","ua": "okhttp/3.10.0"}},
-    {"key": "怀桑","name": "✡️┃怀桑┃APP","type": 3,"api": "csp_AppQi","searchable": 1,"changeable": 1,"ext": {"url": "http://110.42.67.130:1226","dataKey": "kj37zs29q22jk96t","dataIv": "kj37zs29q22jk96t","init": "initV122","ua": "okhttp/3.10.0"}},
+    {"key": "怀桑","name": "✡️┃怀桑┃APP","type": 3,"api": "csp_AppQi","searchable": 1,"changeable": 1,"ext": {"site": "https://daen-1256234123.cos.ap-shanghai.myqcloud.com/MuQi/mqxhqj.txt","dataKey": "kj37zs29q22jk96t","dataIv": "kj37zs29q22jk96t","init": "initV122","ua": "okhttp/3.10.0"}},
     {"key": "不戳","name": "✡️┃不戳┃APP","type": 3,"api": "csp_AppGet","searchable": 1,"changeable": 1,"ext": {"url": "https://appcmszbc.zbc4k.app","dataKey": "pYrEkiWRYhBLTUTC","dataIv": "pYrEkiWRYhBLTUTC"}},
     {"key": "魔方","name": "✡️┃魔方┃APP","type": 3,"api": "csp_AppGet","searchable": 1,"changeable": 1,"ext": {"url": "https://www.douy32mf.top","dataKey": "1234567887654321","dataIv": "1234567887654321"}},
     {"key": "王子","name": "✡️┃王子┃APP","type": 3,"api": "csp_AppGet","searchable": 1,"changeable": 1,"ext": {"url": "https://app.95112475.xyz","dataKey": "5a9w6x58dsq6z3a6","dataIv": "5a9w6x58dsq6z3a6"}},
