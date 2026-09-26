@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/spider.jar;md5;af187c2a2be1bcbb5e183d77e740b21b",
+  "spider": "./jar/spider.jar;md5;6b9c6a14398f00b90d7dfac3d0129b6f",
   "lives": [
     {"name": "TV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.json","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"},
     {"name": "AutoTV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.m3u","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"}
@@ -7,7 +7,7 @@
   "wallpaper": "https://qist.cc/api/api.php",
   "warningText": "Grovin提醒你：资源来自网络，所有内容仅供学习使用，请勿用于违法及商业用途，请勿付费购买。",
   "sites": [
-    {"key": "zy_金鹰资源","name": "🔰┃<09.25更新>","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
+    {"key": "zy_金鹰资源","name": "🔰┃<09.26更新>","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
     {"key": "py_xlys","name": "🌺┃雪落┃影视","type": 3,"api": "./py/xlys.py","jar": "./jar/yt.jar","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://v.xl.in.ua","pageFmt": ""}},
     {"key": "热播","name": "🏆┃热播┃App","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
     {"key": "剧评","name": "🏆┃剧评┃App","type": 3,"api": "csp_Jpys","playerType": 1,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg402i7942463j9j9jh84l8798l8gli652828g332i"},
@@ -36,7 +36,7 @@
     {"key": "华谊影视","name": "🏆┃华谊┃影视","type": 3,"api": "./py/华谊影视.py","searchable": 1,"quickSearch": 1,"filterable": 1,"changeable": 1},
     {"key": "Didahd","name": "🏆┃嘀嗒┃影视","type": 3,"api": "./py/Didahd.py","searchable": 1,"quickSearch": 1,"filterable": 0,"changeable": 1},
     {"key": "TVB云播","name": "🏆┃TVB┃影视","type": 3,"api": "./py/TVB云播.py","searchable": 1,"quickSearch": 1,"filterable": 0,"changeable": 1},
-    {"key": "爱看","name": "✡️┃爱看┃APP","type": 3,"api": "csp_AiKan","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": "http://43.248.117.123:4680"},
+    {"key": "爱看","name": "✡️┃爱看┃APP","type": 3,"api": "csp_AiKan","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": "http://43.248.117.123:14680"},
     {"key": "咕噜","name": "✡️┃咕噜┃APP","type": 3,"api": "csp_Gulu","searchable": 1,"quickSearch": 1,"filterable": 1},
     {"key": "布布","name": "✡️┃布布┃APP","type": 3,"api": "csp_YunDuo","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://323433ssdfd.top","finger": "WF-2c064bc5b3400788f31b848849bc3a60f835423ba2dfe69d7ea93974c216e4f2","aid": "com.web.player","sk": "WEB-50a8e9c84a1dc05669a692ded99a2dac46527229e607a7be15db88dbc59059d1","client": "8f3d2a1c7b6e5d4c9a0b1f2e3d4c5b6a","sign": "ddtvf65f3a83d6d9ad6f"}},
     {"key": "蓝鸟","name": "✡️┃蓝鸟┃APP","type": 3,"api": "csp_AppQi","searchable": 1,"changeable": 1,"ext": {"site": "https://lanyingjisu.oss-cn-wuhan-lr.aliyuncs.com/lyjszx.txt","dataKey": "oW5UxZ5kWVr1DI69","dataIv": "oW5UxZ5kWVr1DI69","init": "initV122","ua": "okhttp/3.10.0"}},
