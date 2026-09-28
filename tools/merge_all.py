@@ -223,19 +223,20 @@ def scan_deps(final):
     deps = {}
 
     def add(path):
-        if not isinstance(path, str) or not path.startswith("./"):
+        if not isinstance(path, str):
             return
-        rel = path[2:]
+        # TVBox 的 jar/spider 常写成 "./jar/x.jar;md5;<hash>"，校验后缀不能算进路径
+        clean = path.split(";md5;")[0]
+        if not clean.startswith("./"):
+            return
+        rel = clean[2:]
         abs_p = os.path.join(ROOT, rel)
         e = os.path.exists(abs_p)
         d = deps.setdefault(rel, {"count": 0, "exists": e})
         d["count"] += 1
 
     sp = final.get("spider", "") or ""
-    if ";" in sp:
-        add(sp.split(";")[0])
-    elif sp.startswith("./"):
-        add(sp)
+    add(sp)  # add() 内部会剥掉 ";md5;<hash>" 校验后缀
     for s in final.get("sites", []):
         for f in ("jar", "ext", "api", "py", "js"):
             v = s.get(f)
@@ -281,6 +282,14 @@ def run():
         f.write("\n")
 
     missing, present = scan_deps(final)
+
+    # 顶层 spider 是最致命的依赖：它加载不到，所有 jar 源全废。单独醒目告警。
+    sp_clean = (final.get("spider", "") or "").split(";md5;")[0]
+    if sp_clean.startswith("./") and not os.path.exists(os.path.join(ROOT, sp_clean[2:])):
+        print(f"\n  ⚠️ 警告：顶层 spider 指向的文件在仓库里不存在 -> {sp_clean}")
+        print("     Line.json 的 spider 必须指向仓库中真实存在的 jar，否则影视仓加载不到 spider，所有 jar 源失效。")
+        print("     请修正 tools/Line.json 的顶层 spider，或先把该 jar 同步进仓库。")
+
     move = {
         "生成时间": time.strftime("%Y-%m-%d %H:%M:%S"),
         "仓库根": ROOT,

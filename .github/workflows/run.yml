@@ -116,6 +116,12 @@ jobs:
           name: fty-output
         continue-on-error: true
 
+      # 增量同步上游 pangmao/ 与 moyu/（含 jar/ext/img）到仓库根，
+      # 供 All.json 的 ./pangmao/... 与 ./moyu/... 依赖落地；首次全量、之后只更变更文件。
+      - name: Sync pangmao/moyu (incremental)
+        run: python3 tools/sync_ds.py
+        continue-on-error: true
+
       - name: Git push assets to "release" branch
         run: |
           git config --local user.name "github-actions[bot]"
