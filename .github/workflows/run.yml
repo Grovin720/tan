@@ -42,6 +42,7 @@ jobs:
           \cp -pdr jsm_with_app_sites.json ../jsm.json
           \cp -pdr ./output/spider.jar ../jar/spider.jar
           rm -rf dianshi_with_app_sites.json jsm_with_app_sites.json output xs.json
+          python merge_all.py
           cd ../
         shell: bash
       - name: Upload xiaosa artifacts
@@ -52,6 +53,8 @@ jobs:
             G.json
             R.json
             jsm.json
+            All.json
+            待搬运文件清单.json
             jar/spider.jar
             xiaosa/
             XBPQ/
