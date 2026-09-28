@@ -1,27 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-merge_all.py — 合并多源 TVBox 线路配置，产出 All.json
-====================================================
+merge_all.py — 以 Line.json 为基底，合并 pangmao/pm.json 与 moyu/my.json，产出 All.json
+====================================================================================
 
-功能：
-  - 以 tools/Line.json 为基底（等同旧 dianshi.json 的角色）
-  - 并入 DodgeZhang/tvbox 仓的 moyu/config.json、moyu/my.json、
-    pangmao/fm.json、pangmao/pm.json（pm.json 优先级最高）
-  - 同 key 站点后者覆盖前者（pm 最高）；lives/parses 按 name 去重追加
-  - 顶层 spider 取优先级最高的源（即 pm.json 的 spider.jar）
-  - 扫描所有本地依赖(./jar ./ext ./py ./js)，生成"待搬运文件清单.json"
-  - 产出仓库根的 All.json（与 G.json 同目录，每日更新）
+合并规则（用户最终确认版）：
+  1. 基底 = tools/Line.json（其顶层字段 spider/logo/wallpaper 及 sites 作为基线，原样保留）
+  2. pangmao/pm.json 的 sites 并入：按 key 合并，同 key 后者（pm）覆盖前者（Line 同名导航站）
+  3. moyu/my.json 的 sites 插入到 Line.json 中 key=="my" 的标记站点【之后】；
+     且 my.json 的每条 site 都补上 jar 字段（= moyu 的 spider jar，路径改写为 ./moyu/jar/...）
+  4. 依赖路径“源感知”改写（只改相对路径 ./ 开头，http/proxy/csp_ 不动）：
+       - 来自 pm.json 的 ./ext/.. ./jar/.. ./img/..  ->  ./pangmao/ext/.. 等
+       - 来自 my.json 的 ./ext/.. ./jar/.. ./img/..  ->  ./moyu/ext/.. 等
+       - Line.json 自带的 ./ 路径保持不动（仓库根已存在对应文件）
+  5. 顶层 spider/logo 等保留 Line.json 的（基底）；pm/my 仅贡献 sites，不覆盖顶层。
 
-特性：
-  - 零依赖（仅标准库 urllib/ssl/json/re/os/sys/time）
-  - 容错解析：兼容 // 注释行与尾逗号（TVBox 配置常见非标准写法）
-  - 单源拉取失败不致命（跳过并记录告警），不会让整个流水线崩
-  - 支持 --self-test 用内置样例验证合并逻辑（无需联网）
+依赖：仅标准库（urllib/ssl/json/re/os/sys/time）。
+本地文件优先；本地缺失时回退 GitHub raw（便于首次运行 / --self-test / CI 兜底）。
 
 用法：
-  python merge_all.py            # 联网拉取并合并，写出 All.json
-  python merge_all.py --self-test # 用内置样例验证（不联网、不写仓库 All.json）
+  python merge_all.py            # 读本地(回退远程)并合并，写出 All.json + 待搬运文件清单.json
+  python merge_all.py --self-test # 用内置样例验证合并逻辑（不联网、不写仓库 All.json）
 """
 
 import os
@@ -37,25 +36,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 TOOLS = HERE
 
-# ---- 合并源（按覆盖优先级从低到高，pm.json 最高）----
-# priority 越大越晚合并（覆盖前者）。
-SOURCES = [
-    {"name": "Line.json (本地基底)", "priority": 1,
-     "local": os.path.join(TOOLS, "Line.json")},
-    {"name": "DodgeZhang/moyu/config.json", "priority": 2,
-     "url": "https://raw.githubusercontent.com/DodgeZhang/tvbox/main/moyu/config.json"},
-    {"name": "DodgeZhang/moyu/my.json", "priority": 3,
-     "url": "https://raw.githubusercontent.com/DodgeZhang/tvbox/main/moyu/my.json"},
-    {"name": "DodgeZhang/pangmao/fm.json", "priority": 4,
-     "url": "https://raw.githubusercontent.com/DodgeZhang/tvbox/main/pangmao/fm.json"},
-    {"name": "DodgeZhang/pangmao/pm.json", "priority": 5,
-     "url": "https://raw.githubusercontent.com/DodgeZhang/tvbox/main/pangmao/pm.json"},
-]
+LINE_LOCAL = os.path.join(TOOLS, "Line.json")
+PM_LOCAL = os.path.join(ROOT, "pangmao", "pm.json")
+MY_LOCAL = os.path.join(ROOT, "moyu", "my.json")
+
+REPO = "DodgeZhang/tvbox"
+BRANCH = "main"
+PM_URL = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/pangmao/pm.json"
+MY_URL = f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/moyu/my.json"
+
+PANGMAO_PREFIX = "./pangmao/"
+MOYU_PREFIX = "./moyu/"
 
 ALL_JSON = os.path.join(ROOT, "All.json")
 MOVE_LIST = os.path.join(ROOT, "待搬运文件清单.json")
 
-LIST_KEYS = ("sites", "lives", "parses")  # 这几个做"合并"而非"覆盖"
+# 需要被路径重写的字段（顶层与站点级），ext 可能是对象/字符串，需递归
+REWRITE_FIELDS = ("spider", "logo", "wallpaper", "ext", "jar", "api", "py", "js")
 
 
 # ----------------------------------------------------------------------
@@ -84,184 +81,212 @@ def fetch(url, timeout=30, retries=3):
     raise last
 
 
-def load_sources():
-    """加载所有源，返回 [(name, priority, data_or_None, error)]。"""
-    out = []
-    for src in SOURCES:
-        name = src["name"]
-        pri = src["priority"]
+def load_local_or_remote(local_path, url, label):
+    """优先读本地文件；本地不存在则回退 GitHub raw。返回 (data, source)。"""
+    if os.path.exists(local_path):
         try:
-            if "local" in src:
-                txt = open(src["local"], encoding="utf-8").read()
-            else:
-                txt = fetch(src["url"])
+            txt = open(local_path, encoding="utf-8").read()
             data = parse_jsonc(txt)
-            out.append((name, pri, data, None))
-            print(f"  [OK] {name} 站点={len(data.get('sites', []))} "
-                  f"lives={len(data.get('lives', []))} parses={len(data.get('parses', []))}")
+            print(f"  [本地] {label} <- {local_path}  站点={len(data.get('sites', []) or [])}")
+            return data, "local"
         except Exception as e:  # noqa: BLE001
-            out.append((name, pri, None, str(e)))
-            print(f"  [失败] {name}: {type(e).__name__} {e}")
+            print(f"  [警告] 本地 {label} 解析失败({e})，尝试远程")
+    try:
+        txt = fetch(url)
+        data = parse_jsonc(txt)
+        print(f"  [远程] {label} <- {url}  站点={len(data.get('sites', []) or [])}")
+        return data, "remote"
+    except Exception as e:  # noqa: BLE001
+        print(f"  [失败] {label}: {type(e).__name__} {e}")
+        return None, "none"
+
+
+# ----------------------------------------------------------------------
+# 路径重写（源感知）
+# ----------------------------------------------------------------------
+# 只改写这几种本地相对目录引用；http/proxy/csp_ 不会以 "./" 开头，天然跳过。
+_LOCAL_REF = re.compile(r'\./(ext|jar|img|py|js)/')
+
+
+def rewrite_paths(value, prefix):
+    """递归地把所有本地相对路径改写为 prefix + 原相对路径。
+    prefix 形如 "./pangmao/"；以下三种情形都覆盖：
+      1) 整串就是相对路径："./ext/x.json"        -> "./pangmao/ext/x.json"
+      2) 字典/列表内嵌：{"home":{"douban":"./ext/x.json"}} -> 同样改写
+      3) JSON 字符串内嵌：'{"filters":"./ext/x.json"}'       -> 提取其中 ./ext/.. 改写
+    已带前缀(./pangmao/ ./moyu/)的不会二次匹配（./pangmao/ext 不含 "./ext/" 子串）。"""
+    if isinstance(value, str):
+        if value.startswith("./"):
+            return prefix + value[2:]
+        # 处理 JSON 字符串或普通字符串中内嵌的本地引用（如 {"filters":"./ext/x.json"}）
+        return _LOCAL_REF.sub(lambda m: prefix + m.group(1) + "/", value)
+    if isinstance(value, dict):
+        return {k: rewrite_paths(v, prefix) for k, v in value.items()}
+    if isinstance(value, list):
+        return [rewrite_paths(v, prefix) for v in value]
+    return value
+
+
+def rewrite_site(site, prefix):
+    out = dict(site)
+    for f in REWRITE_FIELDS:
+        if f in out and out[f] not in (None, ""):
+            out[f] = rewrite_paths(out[f], prefix)
     return out
 
 
 # ----------------------------------------------------------------------
 # 合并
 # ----------------------------------------------------------------------
-def name_of(item):
-    """取 lives/parses 元素的去重键。"""
-    if isinstance(item, dict):
-        return item.get("name") or item.get("url")
-    if isinstance(item, list) and item:
-        return item[0]
-    return None
+def merge(base, pm, my):
+    """base=Line.json, pm=pangmao/pm.json(可None), my=moyu/my.json(可None)
+    返回 (final_dict, stats)。"""
+    stats = {"基底站点": len(base.get("sites", []) or []),
+             "pm参与": pm is not None, "my参与": my is not None}
 
+    # ---- 顶层：以 base(Line) 为基准，原样保留 ----
+    final = {}
+    for k, v in base.items():
+        final[k] = v  # 包含 spider/logo/wallpaper/sites 等
 
-def choose_spider(spider_sources):
-    """spider 取优先级最高的源（即 pm.json 的 spider.jar，覆盖层级最高）。
-    返回 (spider_val, 说明)。"""
-    if not spider_sources:
-        return "", "未设置 spider"
-    p, n, v = max(spider_sources, key=lambda x: x[0])
-    return v, f"采用 {n} 的 spider（优先级最高）"
+    # 用有序列表 + key->index 做按 key 合并与去重
+    sites = list(final.get("sites", []) or [])
+    seen = {s.get("key"): i for i, s in enumerate(sites) if s.get("key")}
 
-
-def merge_sources(loaded):
-    """loaded: [(name, priority, data, error)] -> (final_dict, stats)。"""
-    ok = [(n, p, d) for (n, p, d, e) in loaded if d is not None]
-    failed = [(n, e) for (n, p, d, e) in loaded if d is None]
-
-    # 单值字段：后者覆盖前者（按优先级升序）；spider 单独选择
-    single_order = []
-    single = {}
-    spider_sources = []  # (priority, name, spider_val)
-    for name, _pri, data in sorted(ok, key=lambda x: x[1]):
-        for k, v in data.items():
-            if k in LIST_KEYS:
-                continue
-            if k == "spider":
-                if v:
-                    spider_sources.append((_pri, name, v))
-                continue
-            if k not in single:
-                single_order.append(k)
-            single[k] = v
-
-    # sites：按 key 合并，记录来源；后者覆盖前者
-    sites_map = {}          # key -> (site, src_name)
-    src_counts = {}         # src_name -> 贡献站点数
-    for name, _pri, data in sorted(ok, key=lambda x: x[1]):
-        for s in data.get("sites", []) or []:
+    # ---- 2) pm.json sites 并入（按 key，后者覆盖）----
+    pm_added = pm_replaced = 0
+    if pm:
+        for s in (pm.get("sites", []) or []):
             k = s.get("key")
             if not k:
                 continue
-            sites_map[k] = (s, name)
-        src_counts[name] = src_counts.get(name, 0) + len(
-            [s for s in (data.get("sites", []) or []) if s.get("key")])
+            rs = rewrite_site(s, PANGMAO_PREFIX)
+            if k in seen:
+                sites[seen[k]] = rs
+                pm_replaced += 1
+            else:
+                sites.append(rs)
+                seen[k] = len(sites) - 1
+                pm_added += 1
+    stats["pm新增"] = pm_added
+    stats["pm覆盖"] = pm_replaced
 
-    # lives / parses：按 name 去重，后者覆盖前者
-    lives_map, parses_map = {}, {}
-    for _name, _pri, data in sorted(ok, key=lambda x: x[1]):
-        for it in data.get("lives", []) or []:
-            kk = name_of(it)
-            lives_map[kk if kk is not None else f"_live_{id(it)}"] = it
-        for it in data.get("parses", []) or []:
-            kk = name_of(it)
-            parses_map[kk if kk is not None else f"_parse_{id(it)}"] = it
+    # ---- 3) my.json sites 插入到 "my" 标记之后，且每条补 jar ----
+    my_inserted = my_skipped = 0
+    moyu_jar = None
+    if my:
+        # moyu 的 spider jar（改写路径）作为每条 site 的 jar
+        sp = my.get("spider", "") or ""
+        if sp.startswith("./"):
+            moyu_jar = rewrite_paths(sp, MOYU_PREFIX)  # ./jar/x.jar;md5;.. -> ./moyu/jar/x.jar;md5;..
 
-    # 组装 final（spider 安全选择后置顶）
-    spider_val, spider_note = choose_spider(spider_sources)
-    final = {}
-    if spider_val:
-        final["spider"] = spider_val  # spider 置顶
-    for k in single_order:
-        if k in single and k != "spider":
-            final[k] = single[k]
-    final["sites"] = [v[0] for k, v in sorted(sites_map.items())]
-    final["lives"] = list(lives_map.values())
-    final["parses"] = list(parses_map.values())
+        # 先找 "my" 标记位置（在 Line+pm 合并后的列表里）
+        marker_idx = next((i for i, s in enumerate(sites) if s.get("key") == "my"), None)
+        if marker_idx is None:
+            print("  [警告] 未在基底找到 key=='my' 的标记站点，my.json 的 sites 将追加到末尾")
+            marker_idx = len(sites) - 1
 
-    stats = {
-        "成功源数": len(ok),
-        "失败源数": len(failed),
-        "失败源": [n for n, _ in failed],
-        "spider说明": spider_note,
-        "各源贡献站点数": src_counts,
-        "合并后站点总数": len(final["sites"]),
-        "合并后直播数": len(final["lives"]),
-        "合并后解析数": len(final["parses"]),
-    }
-    return final, stats, sites_map
+        # 准备 my sites（改写路径 + 补 jar）
+        my_ready = []
+        for s in (my.get("sites", []) or []):
+            k = s.get("key")
+            if not k:
+                continue
+            rs = rewrite_site(s, MOYU_PREFIX)
+            if moyu_jar:
+                rs["jar"] = moyu_jar  # 每条补 jar（覆盖/新增）
+            # 去重：若前面已存在同 key（如 Line 的 Douban），则移除旧条目，避免 TVBox 重复 key
+            if k in seen and seen[k] != marker_idx:
+                old = seen[k]
+                sites[old] = None  # 标记待删
+            my_ready.append(rs)
+            my_inserted += 1
+
+        # 插入到标记之后
+        insert_at = marker_idx + 1
+        sites[insert_at:insert_at] = my_ready
+        # 清理被替换成 None 的旧条目
+        sites = [s for s in sites if s is not None]
+        # 重建 seen（插入/删除后索引变了）
+        seen = {s.get("key"): i for i, s in enumerate(sites) if s.get("key")}
+    stats["my插入"] = my_inserted
+
+    final["sites"] = sites
+    stats["合并后站点总数"] = len(sites)
+    return final, stats
 
 
 # ----------------------------------------------------------------------
-# 待搬运清单
+# 待搬运清单（核对依赖是否都已同步到本地）
 # ----------------------------------------------------------------------
-def scan_deps(final, sites_map):
-    """扫描所有本地依赖(./ 开头)，标注仓库是否存在。"""
-    deps = {}  # rel_path -> {count, srcs:set, exists}
+def scan_deps(final):
+    deps = {}
 
-    def add(path, src):
-        if not isinstance(path, str):
-            return
-        if not path or not path.startswith("./"):
+    def add(path):
+        if not isinstance(path, str) or not path.startswith("./"):
             return
         rel = path[2:]
-        if not rel:
-            return
         abs_p = os.path.join(ROOT, rel)
         e = os.path.exists(abs_p)
-        d = deps.setdefault(rel, {"count": 0, "srcs": set(), "exists": e})
+        d = deps.setdefault(rel, {"count": 0, "exists": e})
         d["count"] += 1
-        d["srcs"].add(src)
 
-    # spider 字段（形如 ./jar/spider.jar;md5;xxx）
     sp = final.get("spider", "") or ""
     if ";" in sp:
-        add(sp.split(";")[0], "spider字段")
+        add(sp.split(";")[0])
     elif sp.startswith("./"):
-        add(sp, "spider字段")
-
-    for k, (site, src) in sites_map.items():
-        # jar 可能含 ;md5;xxx
-        jar = (site.get("jar") or "")
-        if ";" in jar:
-            jar = jar.split(";")[0]
-        add(jar, src)
-        add(site.get("ext") or "", src)
-        add(site.get("api") or "", src)
-
-    for it in final.get("lives", []) + final.get("parses", []):
-        if isinstance(it, dict) and isinstance(it.get("ext"), str):
-            add(it["ext"], "lives/parses")
+        add(sp)
+    for s in final.get("sites", []):
+        for f in ("jar", "ext", "api", "py", "js"):
+            v = s.get(f)
+            if isinstance(v, str):
+                add(v)
+            elif isinstance(v, dict):  # ext 可能是对象，递归找字符串
+                for val in _walk_str(v):
+                    add(val)
 
     missing, present = [], []
     for rel, info in sorted(deps.items()):
-        entry = {"path": "./" + rel, "引用次数": info["count"],
-                 "来自源": sorted(info["srcs"]), "仓库中存在": info["exists"]}
+        entry = {"path": "./" + rel, "引用次数": info["count"], "仓库中存在": info["exists"]}
         (missing if not info["exists"] else present).append(entry)
     return missing, present
+
+
+def _walk_str(obj):
+    if isinstance(obj, str):
+        yield obj
+    elif isinstance(obj, dict):
+        for v in obj.values():
+            yield from _walk_str(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _walk_str(v)
 
 
 # ----------------------------------------------------------------------
 # 主流程
 # ----------------------------------------------------------------------
-def run(loaded):
-    final, stats, sites_map = merge_sources(loaded)
+def run():
+    print("开始合并 -> All.json")
+    base = parse_jsonc(open(LINE_LOCAL, encoding="utf-8").read())
+    pm, _ = load_local_or_remote(PM_LOCAL, PM_URL, "pangmao/pm.json")
+    my, _ = load_local_or_remote(MY_LOCAL, MY_URL, "moyu/my.json")
 
-    # 写出 All.json（格式化、中文不转义，便于人读与 diff）
+    if pm is None and my is None:
+        print("错误：pm 与 my 均加载失败，无法合并（基底 Line.json 仍会原样写出）。")
+    final, stats = merge(base, pm, my)
+
     with open(ALL_JSON, "w", encoding="utf-8") as f:
         json.dump(final, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
-    missing, present = scan_deps(final, sites_map)
+    missing, present = scan_deps(final)
     move = {
         "生成时间": time.strftime("%Y-%m-%d %H:%M:%S"),
         "仓库根": ROOT,
-        "spider说明": stats.get("spider说明"),
-        "说明": "以下为 All.json 中引用但仓库根不存在的本地文件，需从对应源仓(DodgeZhang/tvbox)手动搬运；"
-                "已存在项仅供参考，确认无同名冲突即可。本脚本绝不自动覆盖现有文件。",
-        "缺失依赖(需搬运)": missing,
+        "说明": "以下为 All.json 中引用但仓库根【不存在】的本地文件，需先运行 sync_ds.py 同步；"
+                "已存在项仅供参考。All.json 依赖 ./pangmao/ 与 ./moyu/ 同步文件夹。",
+        "缺失依赖(需先 sync_ds.py)": missing,
         "已存在依赖(核对用)": present,
     }
     with open(MOVE_LIST, "w", encoding="utf-8") as f:
@@ -274,100 +299,88 @@ def run(loaded):
     print(f"  缺失依赖数: {len(missing)}  已存在依赖数: {len(present)}")
     print(f"  已写出: {ALL_JSON}")
     print(f"  已写出: {MOVE_LIST}")
-    return final, stats, missing
 
 
 def main():
     if "--self-test" in sys.argv:
         run_self_test()
         return
-    print("开始合并多源 TVBox 线路 -> All.json")
-    loaded = load_sources()
-    if not any(d is not None for _, _, d, _ in loaded):
-        print("错误：所有源都加载失败，无法合并。")
-        sys.exit(1)
-    run(loaded)
+    run()
 
 
 # ----------------------------------------------------------------------
 # 自测（内置样例，不联网、不写仓库 All.json）
 # ----------------------------------------------------------------------
-MOCK = {
-    "Line.json (本地基底)": {
-        "priority": 1,
-        "data": {
-            "spider": "./jar/aidaox.jar",  # 基底自带 spider（仅作基线）
-            "wallpaper": "wp", "logo": "lg",
-            "sites": [
-                {"key": "home", "name": "导航", "type": 3, "api": "csp_Douban"},
-                {"key": "s1", "name": "源1", "type": 1, "api": "http://a.com/api",
-                 "ext": "./ext/douban.json"},
-            ],
-            "lives": [{"name": "liveA", "type": 0, "url": "proxy://x"}],
-            "parses": [{"name": "p1", "type": 0, "url": "http://jx1"}],
-        },
-    },
-    "DodgeZhang/moyu/config.json": {
-        "priority": 2,
-        "data": {
-            "sites": [{"key": "s2", "name": "源2", "type": 1, "api": "http://b.com"}],
-            "lives": [{"name": "liveB", "type": 0, "url": "http://liveb"}],
-        },
-    },
-    "DodgeZhang/moyu/my.json": {
-        "priority": 3,
-        "data": {
-            "spider": "./jar/moyu_spider.jar;md5;mmm",  # 中优先级源
-            "sites": [{"key": "s3", "name": "源3", "type": 3, "api": "csp_X",
-                       "jar": "./jar/my.jar;md5;m1"}],
-        },
-    },
-    "DodgeZhang/pangmao/fm.json": {
-        "priority": 4,
-        "data": {
-            "sites": [{"key": "home", "name": "导航FM覆盖", "type": 3, "api": "csp_Fm"}],
-        },
-    },
-    "DodgeZhang/pangmao/pm.json": {
-        "priority": 5,
-        "data": {
-            "spider": "./jar/spider.jar;md5;bbb",  # 最高优先级源（pm），应被采用
-            "sites": [{"key": "s4", "name": "源4", "type": 3, "api": "csp_Pm",
-                       "jar": "./jar/pm.jar;md5;p1"}],
-        },
-    },
-}
-
-
 def run_self_test():
     print("=== SELF TEST ===")
-    loaded = [(n, v["priority"], v["data"], None) for n, v in MOCK.items()]
-    final, stats, sites_map = merge_sources(loaded)
-    missing, present = scan_deps(final, sites_map)
+    # 基底：含 key=="my" 标记 + 一个将被 pm 覆盖的 Douban
+    base = {
+        "spider": "./jar/aidaox.jar",
+        "sites": [
+            {"key": "Douban", "name": "豆瓣导航", "type": 3, "api": "csp_Douban",
+             "ext": "./ext/douban.json"},
+            {"key": "my", "name": "--- my---"},
+            {"key": "Market", "name": "商店", "type": 3, "api": "csp_Market"},
+        ],
+    }
+    pm = {
+        "spider": "./jar/aidaox-20260911.jar;md5;abc",
+        "sites": [
+            {"key": "Douban", "name": "豆瓣导航(pm覆盖)", "type": 3, "api": "csp_Douban",
+             "ext": "./ext/douban.json"},
+            {"key": "pmExtra", "name": "PM新增", "type": 3, "api": "csp_X",
+             "ext": "./ext/pm.json"},
+            {"key": "pmStr", "name": "PM内嵌串", "type": 3, "api": "csp_Y",
+             "ext": '{"filters":"./ext/douban.json","api":"https://x.com"}'},
+        ],
+    }
+    my = {
+        "spider": "./jar/moyu.jar;md5;def",
+        "sites": [
+            {"key": "M1", "name": "摸鱼1", "type": 3, "api": "csp_PianDan",
+             "ext": {"home": {"douban": "./ext/douban.json", "tmdb": "./ext/tmdb.json"}}},
+            {"key": "Douban", "name": "片单(my覆盖)", "type": 3, "api": "csp_PianDan"},
+        ],
+    }
 
+    final, stats = merge(base, pm, my)
+
+    keys = [s["key"] for s in final["sites"]]
+    # 1) my 标记位置 + my sites 紧随其后
+    mi = keys.index("my")
+    assert keys[mi + 1] == "M1", f"M1 应紧跟 my 标记, 实际 {keys}"
+    assert "pmExtra" in keys, "pmExtra 应被并入"
+    # 2) pm 覆盖 Douban（在 my 之前的那条）—— Line 的 Douban 应被 pm 覆盖，
+    #    而 my 的 Douban 插入在 my 之后；因此列表中有两条 Douban 吗？不应有。
+    #    按规则：Line 的 Douban 被 pm 覆盖 -> 仍为 Line 位置；my 的 Douban 插入到 my 之后并移除前面同名 -> 最终仅 1 条 Douban(my)
+    douban = [s for s in final["sites"] if s["key"] == "Douban"]
+    assert len(douban) == 1, f"Douban 应只剩 1 条(my覆盖), 实际 {len(douban)}"
+    assert douban[0]["name"] == "片单(my覆盖)", f"Douban 应为 my 版, 实际 {douban[0]['name']}"
+    # 3) my 每条补 jar = ./moyu/jar/moyu.jar;md5;def
+    m1 = [s for s in final["sites"] if s["key"] == "M1"][0]
+    assert m1["jar"] == "./moyu/jar/moyu.jar;md5;def", f"M1 jar 错误: {m1.get('jar')}"
+    # 4) 路径改写：pm 的 ext -> ./pangmao/ext/pm.json
+    pme = [s for s in final["sites"] if s["key"] == "pmExtra"][0]
+    assert pme["ext"] == "./pangmao/ext/pm.json", f"pm ext 改写错误: {pme['ext']}"
+    # 5) my 的嵌套 ext 改写 -> ./moyu/ext/...
+    assert m1["ext"]["home"]["douban"] == "./moyu/ext/douban.json", f"my 嵌套 ext 改写错误: {m1['ext']}"
+    # 5b) pm 的 JSON 字符串内嵌 ./ext/ 也需改写（回归）
+    pmstr = [s for s in final["sites"] if s["key"] == "pmStr"][0]
+    assert pmstr["ext"] == '{"filters":"./pangmao/ext/douban.json","api":"https://x.com"}', \
+        f"pm 内嵌串 ext 改写错误: {pmstr['ext']}"
+    # 6) Line 自带 ./ 不动
+    assert final["spider"] == "./jar/aidaox.jar", f"顶层 spider 应保留 Line: {final['spider']}"
+    # 7) 可重新解析
     tmp = os.path.join(TOOLS, "_selftest_All.json")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(final, f, ensure_ascii=False, indent=2)
-
-    # ---- 断言 ----
-    assert len(final["sites"]) == 5, f"站点数应为5，实际{len(final['sites'])}"
-    assert final["spider"] == "./jar/spider.jar;md5;bbb", \
-        f"spider应取最高优先级(pm)的，实际{final['spider']}"
-    home = [s for s in final["sites"] if s["key"] == "home"][0]
-    assert home["name"] == "导航FM覆盖", f"home应被fm覆盖，实际{home['name']}"
-    all_paths = {m["path"] for m in missing} | {p["path"] for p in present}
-    for expect in ["./ext/douban.json", "./jar/my.jar", "./jar/pm.jar", "./jar/spider.jar"]:
-        assert expect in all_paths, f"依赖清单应含 {expect}"
-    # 校验可重新解析
-    reloaded = parse_jsonc(open(tmp, encoding="utf-8").read())
-    assert len(reloaded["sites"]) == 5
-
+    json.dump(final, open(tmp, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    parse_jsonc(open(tmp, encoding="utf-8").read())
     os.remove(tmp)
-    print("  站点数:", len(final["sites"]), "(期望5)")
-    print("  spider:", final["spider"], "(期望 ./jar/spider.jar;md5;bbb)")
-    print("  home 站点名:", home["name"], "(期望 导航FM覆盖)")
-    print("  依赖路径(缺失+已存在):", sorted(all_paths))
-    print("  统计:", stats["各源贡献站点数"])
+
+    print("  站点顺序:", keys)
+    print("  统计:", stats)
+    print("  M1 jar:", m1["jar"])
+    print("  pmExtra ext:", pme["ext"])
+    print("  my 嵌套 ext:", m1["ext"]["home"])
     print("=== SELF TEST PASSED ===")
 
 
