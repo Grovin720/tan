@@ -1,58 +1,78 @@
 {
-  "生成时间": "2026-09-28 06:23:42",
+  "生成时间": "2026-09-28 08:09:12",
   "仓库根": "/home/runner/work/tan/tan",
-  "spider说明": "采用 DodgeZhang/pangmao/pm.json 的 spider（优先级最高）",
-  "说明": "以下为 All.json 中引用但仓库根不存在的本地文件，需从对应源仓(DodgeZhang/tvbox)手动搬运；已存在项仅供参考，确认无同名冲突即可。本脚本绝不自动覆盖现有文件。",
-  "缺失依赖(需搬运)": [
+  "说明": "以下为 All.json 中引用但仓库根【不存在】的本地文件，需先运行 sync_ds.py 同步；已存在项仅供参考。All.json 依赖 ./pangmao/ 与 ./moyu/ 同步文件夹。",
+  "缺失依赖(需先 sync_ds.py)": [
     {
-      "path": "./ext/douban.json",
+      "path": "./jar/aidaox.jar",
       "引用次数": 1,
-      "来自源": [
-        "DodgeZhang/pangmao/pm.json"
-      ],
       "仓库中存在": false
     },
     {
-      "path": "./ext/fishdrive.json",
+      "path": "./moyu/ext/360.json",
       "引用次数": 1,
-      "来自源": [
-        "DodgeZhang/moyu/my.json"
-      ],
       "仓库中存在": false
     },
     {
-      "path": "./ext/lab.json",
+      "path": "./moyu/ext/douban.json",
       "引用次数": 1,
-      "来自源": [
-        "DodgeZhang/pangmao/pm.json"
-      ],
       "仓库中存在": false
     },
     {
-      "path": "./ext/legado_sources.json",
+      "path": "./moyu/ext/fishdrive.json",
       "引用次数": 1,
-      "来自源": [
-        "DodgeZhang/pangmao/pm.json"
-      ],
       "仓库中存在": false
     },
     {
-      "path": "./ext/share.json",
+      "path": "./moyu/ext/share.json",
       "引用次数": 1,
-      "来自源": [
-        "DodgeZhang/pangmao/pm.json"
-      ],
+      "仓库中存在": false
+    },
+    {
+      "path": "./moyu/ext/tmdb.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./moyu/ext/wogg.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./moyu/jar/466454997_2_1789736334293.jar;md5;835b242eab0da4d3402724dd4705a9e8",
+      "引用次数": 115,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/bili_edu_high.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/bili_home.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/bili_music.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/lab.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/legado_sources.json",
+      "引用次数": 1,
+      "仓库中存在": false
+    },
+    {
+      "path": "./pangmao/ext/wogg.json",
+      "引用次数": 1,
       "仓库中存在": false
     }
   ],
-  "已存在依赖(核对用)": [
-    {
-      "path": "./jar/aidaox-20260911-111534.jar",
-      "引用次数": 1,
-      "来自源": [
-        "spider字段"
-      ],
-      "仓库中存在": true
-    }
-  ]
+  "已存在依赖(核对用)": []
 }
