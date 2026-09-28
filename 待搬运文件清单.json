@@ -1,0 +1,58 @@
+{
+  "生成时间": "2026-09-28 06:23:42",
+  "仓库根": "/home/runner/work/tan/tan",
+  "spider说明": "采用 DodgeZhang/pangmao/pm.json 的 spider（优先级最高）",
+  "说明": "以下为 All.json 中引用但仓库根不存在的本地文件，需从对应源仓(DodgeZhang/tvbox)手动搬运；已存在项仅供参考，确认无同名冲突即可。本脚本绝不自动覆盖现有文件。",
+  "缺失依赖(需搬运)": [
+    {
+      "path": "./ext/douban.json",
+      "引用次数": 1,
+      "来自源": [
+        "DodgeZhang/pangmao/pm.json"
+      ],
+      "仓库中存在": false
+    },
+    {
+      "path": "./ext/fishdrive.json",
+      "引用次数": 1,
+      "来自源": [
+        "DodgeZhang/moyu/my.json"
+      ],
+      "仓库中存在": false
+    },
+    {
+      "path": "./ext/lab.json",
+      "引用次数": 1,
+      "来自源": [
+        "DodgeZhang/pangmao/pm.json"
+      ],
+      "仓库中存在": false
+    },
+    {
+      "path": "./ext/legado_sources.json",
+      "引用次数": 1,
+      "来自源": [
+        "DodgeZhang/pangmao/pm.json"
+      ],
+      "仓库中存在": false
+    },
+    {
+      "path": "./ext/share.json",
+      "引用次数": 1,
+      "来自源": [
+        "DodgeZhang/pangmao/pm.json"
+      ],
+      "仓库中存在": false
+    }
+  ],
+  "已存在依赖(核对用)": [
+    {
+      "path": "./jar/aidaox-20260911-111534.jar",
+      "引用次数": 1,
+      "来自源": [
+        "spider字段"
+      ],
+      "仓库中存在": true
+    }
+  ]
+}
