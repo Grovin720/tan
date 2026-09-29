@@ -296,7 +296,7 @@ if __name__ == "__main__":
     print(f"✅ 合并后站点数: {len(dianshi['sites'])}")
 
     # 6.5 第一个站点（zy_金鹰资源）加盖更新日期 —— 用户要求的特例，覆盖"模板 name 不动"规则
-    STAMP_KEY = "zy_金鹰资源"
+    STAMP_KEY = "热播"
     stamp_date = (datetime.now(timezone.utc) + timedelta(hours=8)).strftime("%m.%d")
     for s in dianshi.get("sites", []):
         if isinstance(s, dict) and s.get("key") == STAMP_KEY:
