@@ -236,7 +236,7 @@
     {"key": "小霸王", "name": "🎮小霸王[游戏]", "type": 3, "api": "csp_Yikm", "searchable": 1, "quickSearch": 1, "filterable": 1, "changeable": 0, "style": {"type": "rect", "ratio": 0.75}, "timeout": 60}
   ],
   "lives": [
-    {"name": "直播·网页电视", "type": 0, "url": "proxy://do=ntvlive", "ua": "okhttp/3.15", "timeZone": "Asia/Shanghai"}
+    {"name": "直播·网页电视", "type": 0, "url": "https://gitee.com/grovin/tan/raw/main/K2.m3u", "ua": "okhttp/3.15", "timeZone": "Asia/Shanghai"}
   ],
   "parses": [
     {"name": "手动解析①", "type": 0, "url": "https://jx.xmflv.com/?url=", "ext": {"header": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57"}}},
