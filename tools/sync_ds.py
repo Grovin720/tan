@@ -39,32 +39,45 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
+# 可选：CI 内置 GITHUB_TOKEN 仅用于抬高 api.github.com 的匿名限流(60/h -> 5000/h)。
+# 读的是公开仓库 DodgeZhang/tvbox，任何有效 token 即可解除限流；缺失则回退匿名。
+TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
 
-def api_get(url, retries=3):
+
+def _auth_headers(extra=None):
+    h = {"User-Agent": "okhttp/4.10.0"}
+    if extra:
+        h.update(extra)
+    if TOKEN:
+        h["Authorization"] = "Bearer " + TOKEN
+    return h
+
+
+def api_get(url, retries=4):
     last = None
     for i in range(retries):
         try:
             req = urllib.request.Request(
-                url, headers={"User-Agent": "okhttp/4.10.0",
-                              "Accept": "application/vnd.github+json"})
+                url, headers=_auth_headers(
+                    {"Accept": "application/vnd.github+json"}))
             with urllib.request.urlopen(req, timeout=30, context=ctx) as r:
                 return json.loads(r.read().decode("utf-8"))
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(1.5 * (i + 1))
+            time.sleep(2 * (i + 1))
     raise last
 
 
-def raw_get_bytes(url, retries=3, timeout=120):
+def raw_get_bytes(url, retries=4, timeout=120):
     last = None
     for i in range(retries):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "okhttp/4.10.0"})
+            req = urllib.request.Request(url, headers=_auth_headers())
             with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
                 return r.read()
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(1.5 * (i + 1))
+            time.sleep(2 * (i + 1))
     raise last
 
 

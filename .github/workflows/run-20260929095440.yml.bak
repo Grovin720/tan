@@ -43,8 +43,6 @@ jobs:
           \cp -pdr ./output/spider.jar ../jar/spider.jar
           rm -rf dianshi_with_app_sites.json jsm_with_app_sites.json output xs.json
           python merge_all.py
-          python arrange_all.py
-          python make_r_all.py
           cd ../
         shell: bash
       - name: Upload xiaosa artifacts
@@ -56,7 +54,6 @@ jobs:
             R.json
             jsm.json
             All.json
-            AllR.json
             待搬运文件清单.json
             jar/spider.jar
             xiaosa/
@@ -121,10 +118,7 @@ jobs:
 
       # 增量同步上游 pangmao/ 与 moyu/（含 jar/ext/img）到仓库根，
       # 供 All.json 的 ./pangmao/... 与 ./moyu/... 依赖落地；首次全量、之后只更变更文件。
-      # GITHUB_TOKEN 仅用于抬高 api.github.com 匿名限流，缺失则回退匿名。
       - name: Sync pangmao/moyu (incremental)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 tools/sync_ds.py
         continue-on-error: true
 

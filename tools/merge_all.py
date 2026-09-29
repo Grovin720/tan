@@ -31,6 +31,10 @@ import time
 import ssl
 import urllib.request
 
+# 复用 arrange_all 的「一个站点一行」序列化（仿 G.json 风格，仍是合法 JSON，TVBox 兼容）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from arrange_all import dump_tvbox_json  # noqa: E402
+
 # ---- 路径基准：tools/merge_all.py -> 父目录即仓库根 ----
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -278,8 +282,7 @@ def run():
     final, stats = merge(base, pm, my)
 
     with open(ALL_JSON, "w", encoding="utf-8") as f:
-        json.dump(final, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+        f.write(dump_tvbox_json(final))
 
     missing, present = scan_deps(final)
 
