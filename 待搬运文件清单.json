@@ -1,77 +1,77 @@
 {
-  "生成时间": "2026-09-28 08:28:38",
+  "生成时间": "2026-09-29 01:57:50",
   "仓库根": "/home/runner/work/tan/tan",
   "说明": "以下为 All.json 中引用但仓库根【不存在】的本地文件，需先运行 sync_ds.py 同步；已存在项仅供参考。All.json 依赖 ./pangmao/ 与 ./moyu/ 同步文件夹。",
   "缺失依赖(需先 sync_ds.py)": [
     {
-      "path": "./moyu/ext/360.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/ext/douban.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/ext/fishdrive.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/ext/share.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/ext/tmdb.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/ext/wogg.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./moyu/jar/466454997_2_1789736334293.jar",
-      "引用次数": 115,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/bili_edu_high.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/bili_home.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/bili_music.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/lab.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/legado_sources.json",
-      "引用次数": 1,
-      "仓库中存在": false
-    },
-    {
-      "path": "./pangmao/ext/wogg.json",
+      "path": "./jar/aidaox.jar",
       "引用次数": 1,
       "仓库中存在": false
     }
   ],
   "已存在依赖(核对用)": [
     {
-      "path": "./jar/aidaox-20260911-111534.jar",
+      "path": "./moyu/ext/360.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/ext/douban.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/ext/fishdrive.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/ext/share.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/ext/tmdb.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/ext/wogg.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/jar/466454997_2_1789736334293.jar",
+      "引用次数": 115,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/bili_edu_high.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/bili_home.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/bili_music.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/lab.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/legado_sources.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./pangmao/ext/wogg.json",
       "引用次数": 1,
       "仓库中存在": true
     }
