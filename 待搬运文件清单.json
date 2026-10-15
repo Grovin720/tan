@@ -1,14 +1,8 @@
 {
-  "生成时间": "2026-10-14 05:00:20",
+  "生成时间": "2026-10-15 04:48:42",
   "仓库根": "/home/runner/work/tan/tan",
   "说明": "以下为 All.json 中引用但仓库根【不存在】的本地文件，需先运行 sync_ds.py 同步；已存在项仅供参考。All.json 依赖 ./pangmao/ 与 ./moyu/ 同步文件夹。",
-  "缺失依赖(需先 sync_ds.py)": [
-    {
-      "path": "./moyu/jar/dm.jar",
-      "引用次数": 1,
-      "仓库中存在": false
-    }
-  ],
+  "缺失依赖(需先 sync_ds.py)": [],
   "已存在依赖(核对用)": [
     {
       "path": "./jar/aidaox-20260911-111534.jar",
@@ -16,33 +10,8 @@
       "仓库中存在": true
     },
     {
-      "path": "./moyu/ext/360.json",
-      "引用次数": 1,
-      "仓库中存在": true
-    },
-    {
-      "path": "./moyu/ext/douban.json",
-      "引用次数": 1,
-      "仓库中存在": true
-    },
-    {
-      "path": "./moyu/ext/fishdrive.json",
-      "引用次数": 1,
-      "仓库中存在": true
-    },
-    {
-      "path": "./moyu/ext/share.json",
-      "引用次数": 1,
-      "仓库中存在": true
-    },
-    {
-      "path": "./moyu/ext/tmdb.json",
-      "引用次数": 1,
-      "仓库中存在": true
-    },
-    {
-      "path": "./moyu/ext/wogg.json",
-      "引用次数": 1,
+      "path": "./moyu/jar/439065876_1_1791894280503.jar",
+      "引用次数": 100,
       "仓库中存在": true
     },
     {
@@ -51,8 +20,33 @@
       "仓库中存在": true
     },
     {
-      "path": "./moyu/jar/709654417_2_1791217713839.jar",
-      "引用次数": 98,
+      "path": "./moyu/lib/360.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/lib/douban.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/lib/fishdrive.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/lib/share.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/lib/tmdb.json",
+      "引用次数": 1,
+      "仓库中存在": true
+    },
+    {
+      "path": "./moyu/lib/wogg.json",
+      "引用次数": 1,
       "仓库中存在": true
     },
     {
