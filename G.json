@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/spider.jar;md5;c1978e5cec469f66f07efd37d39ec26a",
+  "spider": "./jar/spider.jar;md5;a4638e7ba814dd552472501335ecdc47",
   "lives": [
     {"name": "TV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.json","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"},
     {"name": "AutoTV","type": 0,"url": "https://gitee.com/grovin/tan/raw/main/K2.m3u","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"}
@@ -7,7 +7,7 @@
   "wallpaper": "https://qist.cc/api/api.php",
   "warningText": "Grovin提醒你：资源来自网络，所有内容仅供学习使用，请勿用于违法及商业用途，请勿付费购买。",
   "sites": [
-    {"key": "热播","name": "👑热播┃<10.29更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
+    {"key": "热播","name": "👑热播┃<10.30更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
     {"key": "zy_金鹰资源","name": "🔰┃金鹰┃直连","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
     {"key": "py_xlys","name": "🌺┃雪落┃影视","type": 3,"api": "./py/xlys.py","jar": "./jar/yt.jar","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://v.xl.in.ua","pageFmt": ""}},
     {"key": "剧评","name": "🏆┃剧评┃App","type": 3,"api": "csp_Jpys","playerType": 1,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg402i7942463j9j9jh84l8798l8gli652828g332i"},
@@ -99,6 +99,8 @@
     {"key": "drpy_js_菜狗","name": "🚛┃搜狗┃(官)","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/菜狗.js"},
     {"key": "drpy_js_优酷","name": "🥔┃优酷┃(官)","type": 3,"api": "./lib/drpy2.min.js","ext": "./js/优酷.js"},
     {"key": "csp_Dm84","name": "🚌┃动漫┃巴士","type": 3,"api": "csp_Dm84","searchable": 1,"quickSearch": 1,"jar": "./jar/fty.jar;md5;602fb3226d777850053484cdeb2f3296","changeable": 1},
+    {"key": "吉里动漫","name": "🍄┃吉里┃动漫","type": 3,"api": "csp_AnimeGiri"},
+    {"key": "花子动漫","name": "🍄┃花子┃动漫","type": 3,"api": "csp_AnimeHuazi"},
     {"key": "双星99","name": "🍄┃双星┃动漫","type": 3,"api": "csp_App99","ext": {"host": "http://111.180.139.119:19987/app/bn","LoginPath": "/app/log","appkey": "f66f65db127e48449f073c2c6eb0f993","versionName": "6.4.9","name": "双子星动漫","package": "com.haiwang.liangxia.my.ym","buildNumber": "2001","buildSignature": "A40DA80A59D170CAA950CF15C18C454D47A39B26989D8B640ECD745BA71BF5DC"}},
     {"key": "路漫漫","name": "🍄┃路漫┃动漫","type": 3,"api": "https://pan.vma.cc/pan/down.php/ec67b9045d393737f073d2c9365533f0.js","ext": "./js/LMM.js"},
     {"key": "去看吧","name": "🍄┃看吧┃动漫","type": 3,"api": "https://pan.vma.cc/pan/down.php/ec67b9045d393737f073d2c9365533f0.js","ext": "./js/QKB.js"},
@@ -109,7 +111,7 @@
     {"key": "方舟动漫","name": "🍄┃方舟┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://www.cyfz.top","dataKey": "e72cdfd629e8895d","dataIv": "e72cdfd629e8895d"}},
     {"key": "曼波动漫","name": "🍄┃曼波┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://app.omofun1.top","dataKey": "66dc309cbeeca454","dataIv": "66dc309cbeeca454"}},
     {"key": "咕咕动漫","name": "🍄┃咕咕┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://www.gugu3.com","dataKey": "nKfZ8KX6JTNWRzTD","dataIv": "nKfZ8KX6JTNWRzTD"}},
-    {"key": "巴士动漫","name": "🍄┃巴士┃动漫","type": 3,"api": "csp_XBPQ","ext": {"请求头": "User-Agent$MOBILE_UA#Accept$text/html#accept-language$zh-CN,zh;q=0.8","分类url": "https://dmbus.cc/show-{cateId}--{by}-{class}--{year}-{catePg}.html","分类": "国漫$1#日漫$2#欧美动漫$3#电影$4","数组": "class=\"item\">&&</li>","简介": "剧情：&&</p>","标题": "title=\"&&在线观看\"","副标题": "desc\">&&</span>","图片": "data-bg=\"&&\"","搜索url": "https://dmbus.cc/s----------.html?wd={wd}","倒序": "1"}},
+    {"key": "巴士动漫","name": "🍄┃巴士┃动漫","type": 3,"api": "csp_AnimeBashi"},
     {"key": "漫国动漫","name": "🍄┃漫国┃动漫","type": 3,"searchable": 1,"api": "csp_AppSy","ext": {"site": "https://dm-1255775577.cos.ap-guangzhou.myqcloud.com/dmg/api.txt","siteKey": "rectangleadsadxa","listKey": "aassddwwxxllsx1x","parsesKey": "aassddwwxxllsx1x"}},
     {"key": "丫丫动漫","name": "🍄┃丫丫┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "http://tv.yy-fun.cc","dataKey": "qkxnwkfjwpcnwycl","dataIv": "qkxnwkfjwpcnwycl"}},
     {"key": "方舟动漫","name": "🍄┃方舟┃动漫","type": 3,"searchable": 1,"api": "csp_AppGet","ext": {"url": "https://www.cyfz.top","dataKey": "e72cdfd629e8895d","dataIv": "e72cdfd629e8895d"}},
