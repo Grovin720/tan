@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/spider.jar;md5;c6c7cbd14359dee31a97abb7ec27df19",
+  "spider": "./jar/spider.jar;md5;356ad46efe5d2b44a9cb4a6deb9ef0df",
   "lives": [
     {"name": "TV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.json","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"},
     {"name": "AutoTV","type": 0,"url": "https://gitee.com/grovin/tan/raw/main/K2.m3u","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"}
@@ -7,7 +7,7 @@
   "wallpaper": "https://qist.cc/api/api.php",
   "warningText": "Grovin提醒你：资源来自网络，所有内容仅供学习使用，请勿用于违法及商业用途，请勿付费购买。",
   "sites": [
-    {"key": "热播","name": "👑热播┃<11.04更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
+    {"key": "热播","name": "👑热播┃<11.05更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
     {"key": "zy_金鹰资源","name": "🔰┃金鹰┃直连","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
     {"key": "py_xlys","name": "🌺┃雪落┃影视","type": 3,"api": "./py/xlys.py","jar": "./jar/yt.jar","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://v.xl.in.ua","pageFmt": ""}},
     {"key": "剧评","name": "🏆┃剧评┃App","type": 3,"api": "csp_Jpys","playerType": 1,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg402i7942463j9j9jh84l8798l8gli652828g332i"},
@@ -193,7 +193,7 @@
     {"key": "金蝉采集","name": "🥦┃金蝉┃采集","type": 1,"api": "https://zy.jinchancaiji.com/api.php/provide/vod","style": {"type": "rect","ratio": 1.33},"searchable": 1,"quickSearch": 1,"filterable": 1,"changeable": 1,"playerType": 2},
     {"key": "小绵阳采集","name": "🥦┃绵阳┃采集","type": 1,"api": "https://vs.okcdn100.top/api.php/provide/vod","style": {"type": "rect","ratio": 1.33},"searchable": 1,"quickSearch": 1,"filterable": 1,"changeable": 1,"playerType": 2},
     {"key": "789采集","name": "🥦┃789┃采集","type": 1,"api": "https://zy.jinchancaiji.com/api.php/provide/vod/","playUrl": " https://jx.789jiexi.net:4433/?url=","searchable": 1,"changeable": 1,"categories": ["电影","动作片","喜剧片","爱情片","科幻片","恐怖片","剧情片","战争片","惊悚片","犯罪片","冒险片","动画片","悬疑片","武侠片","奇幻片","纪录片","连续剧","其他片","国产剧","港台剧","欧美剧","日韩剧","其他剧","动漫","综艺"]},
-    {"key": "荐片","name": "⚡┃荐片┃磁力","api": "csp_JianPian","type": 3},
+    {"key": "荐片","name": "⚡┃荐片┃磁力","api": "csp_JianPian","type": 3,"ext": {"site": ["https://www.whhyn.com","https://www.zxfmj.com"]}},
     {"key": "七味","name": "⚡┃七味┃磁力","type": 3,"api": "csp_QnMp4","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": "https://www.qwshow.com,https://www.qwmkv.com,https://www.qwfilm.com,https://www.qwfun.com,https://www.qnnull.com,https://www.qnnull.com"},
     {"key": "New6v","name": "⚡┃N6V┃磁力","type": 3,"api": "csp_New6v","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": "https://www.xb6v.com"},
     {"key": "美剧迷","name": "⚡┃美剧┃磁力","type": 3,"api": "csp_MeijuMi","searchable": 1,"quickSearch": 1,"filterable": 1},
