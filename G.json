@@ -1,5 +1,5 @@
 {
-  "spider": "./jar/spider.jar;md5;c25d34b0cfc044cd1ab3f225097ea7fd",
+  "spider": "./jar/spider.jar;md5;a2928946eb00e5fee87663c94ae37bff",
   "lives": [
     {"name": "TV","type": 0,"url": "https://gitee.com/grovin/Xu/raw/main/K2.json","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"},
     {"name": "AutoTV","type": 0,"url": "https://gitee.com/grovin/tan/raw/main/K2.m3u","playerType": 1,"ua": "okhttp/3.8.1","epg": "http://epg.112114.xyz/?ch={name}&date={date}","logo": "https://epg.112114.xyz/logo/{name}.png"}
@@ -7,7 +7,7 @@
   "wallpaper": "https://qist.cc/api/api.php",
   "warningText": "Grovin提醒你：资源来自网络，所有内容仅供学习使用，请勿用于违法及商业用途，请勿付费购买。",
   "sites": [
-    {"key": "热播","name": "👑热播┃<11.11更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
+    {"key": "热播","name": "👑热播┃<11.12更新>","type": 3,"api": "csp_TTian","playerType": 2,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg0939791h1l3888jig44gi291li"},
     {"key": "zy_金鹰资源","name": "🔰┃金鹰┃直连","type": 1,"api": "https://jyzyapi.com/provide/vod/","searchable": 1,"quickSearch": 1,"categories": ["剧情片","内地剧","短剧","中国动漫","记录片","综艺","欧美剧","香港剧","韩剧","日剧","马泰剧","动作片","爱情片","喜剧片","科幻片","恐怖片","战争片","动漫","动画片","日本动漫","欧美动漫","台湾剧","体育赛事"]},
     {"key": "py_xlys","name": "🌺┃雪落┃影视","type": 3,"api": "./py/xlys.py","jar": "./jar/yt.jar","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": {"host": "https://v.xl.in.ua","pageFmt": ""}},
     {"key": "剧评","name": "🏆┃剧评┃App","type": 3,"api": "csp_Jpys","playerType": 1,"jar": "./jar/lh250711.jar;md5;9ab53f593c034c2b80cdc9f4c785a6f3","ext": "7lj763gg402i7942463j9j9jh84l8798l8gli652828g332i"},
@@ -39,6 +39,7 @@
     {"key": "Didahd","name": "🏆┃嘀嗒┃影视","type": 3,"api": "./py/Didahd.py","searchable": 1,"quickSearch": 1,"filterable": 0,"changeable": 1},
     {"key": "TVB云播","name": "🏆┃TVB┃影视","type": 3,"api": "./py/TVB云播.py","searchable": 1,"quickSearch": 1,"filterable": 0,"changeable": 1},
     {"key": "米诺","name": "✡️┃米诺┃APP","type": 3,"api": "csp_AppMN","searchable": 1,"quickSearch": 1,"filterable": 0},
+    {"key": "下饭","name": "✡️┃下饭┃APP","type": 3,"api": "csp_JuXiaFan","searchable": 1,"quickSearch": 1,"filterable": 1},
     {"key": "快映fox","name": "✡️┃快映┃APP","type": 3,"api": "csp_AppFox","searchable": 1,"quickSearch": 1,"filterable": 0,"ext": "./json/ky4kbgq7b273.json"},
     {"key": "茉莉Get","name": "✡️┃茉莉┃APP","type": 3,"api": "csp_AppGet","searchable": 1,"changeable": 1,"ext": {"site": "https://allinadmin.oss-cn-hangzhou.aliyuncs.com/bk/9.txt","dataKey": "88689667dce61725","dataIv": "88689667dce61725"}},
     {"key": "爱看","name": "✡️┃爱看┃APP","type": 3,"api": "csp_AiKan","searchable": 1,"quickSearch": 1,"filterable": 1,"ext": "http://43.248.117.123:4680"},
